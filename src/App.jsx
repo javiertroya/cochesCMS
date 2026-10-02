@@ -23,6 +23,7 @@ import AdminAuditLog from './pages/admin/AdminAuditLog'
 import AdminRedirects from './pages/admin/AdminRedirects'
 import AdminCarousel from './pages/admin/AdminCarousel'
 import AdminStyles from './pages/admin/AdminStyles'
+import AdminRequests from './pages/admin/AdminRequests'
 
 import DynamicPage from './pages/DynamicPage'
 import CollectionItemPage from './pages/CollectionItemPage'
@@ -50,6 +51,7 @@ const App = () => {
                                     element={<RequireRole roles={['admin', 'editor']}><AdminShell /></RequireRole>}
                                 >
                                     <Route index element={<AdminDashboard />} />
+                                    <Route path="requests" element={<AdminRequests />} />
                                     <Route path="pages" element={<AdminPages />} />
                                     <Route path="components" element={<AdminComponents />} />
                                     <Route path="collections" element={<AdminCollections />} />

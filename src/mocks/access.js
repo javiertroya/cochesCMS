@@ -1,4 +1,4 @@
-import { FaCarSide, FaRegNewspaper, FaEnvelope } from "react-icons/fa6"
+import { FaCarSide, FaPlane, FaEnvelope } from "react-icons/fa6"
 
 const ACCESS = [
     {
@@ -9,9 +9,9 @@ const ACCESS = [
     },
     {
         id: 2,
-        icon: { element: true, source: FaRegNewspaper },
-        label: "Noticias",
-        link: "/noticias",
+        icon: { element: true, source: FaPlane },
+        label: "Importación",
+        link: "/importacion",
     },
     {
         id: 3,

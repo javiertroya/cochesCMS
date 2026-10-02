@@ -43,6 +43,7 @@ class NotificationService:
         to_email: str | None = None,
         reply_to: str | None = None,
         html: str | None = None,
+        attachments: list[tuple[str, bytes, str, str]] | None = None,
     ):
         message = EmailMessage()
         message["From"] = NotificationService.MAIL_FROM
@@ -53,6 +54,9 @@ class NotificationService:
         message.set_content(body)
         if html:
             message.add_alternative(html, subtype="html")
+        # Adjuntos: (nombre, contenido, maintype, subtype)
+        for filename, content, maintype, subtype in attachments or []:
+            message.add_attachment(content, maintype=maintype, subtype=subtype, filename=filename)
 
         with smtplib.SMTP(
             NotificationService.SMTP_HOST,

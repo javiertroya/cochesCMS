@@ -76,6 +76,9 @@ class LocalStorage:
         if path.is_file():
             path.unlink()
 
+    def get(self, key: str, *, private: bool = False) -> bytes:
+        return self._path(key, private).read_bytes()
+
     def public_url(self, key: str) -> str:
         return f"/uploads/{_validate_key(key)}"
 
@@ -135,6 +138,10 @@ class R2Storage:
 
     def delete(self, key: str, *, private: bool = False) -> None:
         self.client.delete_object(Bucket=self._bucket(private), Key=_validate_key(key))
+
+    def get(self, key: str, *, private: bool = False) -> bytes:
+        response = self.client.get_object(Bucket=self._bucket(private), Key=_validate_key(key))
+        return response["Body"].read()
 
     def public_url(self, key: str) -> str:
         return f"{self.public_base_url}/{quote(_validate_key(key))}"

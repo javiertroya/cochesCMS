@@ -4,6 +4,7 @@ import AdminPageHeader from '@/components/Admin/Layout/AdminPageHeader'
 import ColorsSection from '@/components/Admin/Styles/ColorsSection'
 import FooterSection from '@/components/Admin/Styles/FooterSection'
 import HeaderSection from '@/components/Admin/Styles/HeaderSection'
+import NotificationsSection from '@/components/Admin/Styles/NotificationsSection'
 import SiteInfoSection from '@/components/Admin/Styles/SiteInfoSection'
 import TypographySection from '@/components/Admin/Styles/TypographySection'
 import { Button } from '@/components/UI/coss/button'
@@ -44,6 +45,7 @@ const StylesManager = ({ form }) => {
                     <ColorsSection control={control} applyPreset={applyPreset} preview={preview} />
                     <TypographySection register={register} preview={preview} />
                     <FooterSection register={register} watch={watch} />
+                    <NotificationsSection register={register} />
 
                     <div className="flex justify-end pb-2">
                         <Button type="submit" loading={saving}>

@@ -14,8 +14,11 @@ _SETTINGS_DIFF_FIELDS = {
     "text_color", "heading_color", "link_color",
     "font_family_heading", "font_family_body", "font_size_base",
     "border_radius", "footer_text", "footer_address", "footer_map_embed",
-    "footer_copyright",
+    "footer_copyright", "notification_email",
 }
+
+# Ajustes que no deben salir en la API pública
+_PRIVATE_FIELDS = {"notification_email"}
 
 
 @router.get("/api/settings")
@@ -23,7 +26,7 @@ def get_public_settings():
     settings = SiteSettingsService.get()
     if not settings:
         raise HTTPException(status_code=404, detail="Configuración no encontrada")
-    return settings
+    return {key: value for key, value in settings.items() if key not in _PRIVATE_FIELDS}
 
 
 @router.get("/api/admin/settings")

@@ -34,6 +34,7 @@ npm run dev
 - Web: http://localhost:5173
 - Panel: http://localhost:5173/admin
 - API: http://localhost:8000/docs
+- Correos de desarrollo (Mailpit): http://localhost:8025 — aquí llegan los avisos de solicitudes; no salen a internet
 - PostgreSQL desde tu PC: `localhost:5433` (usuario/contraseña en `server/.env`)
 
 ## Comandos útiles

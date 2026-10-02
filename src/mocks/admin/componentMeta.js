@@ -1,8 +1,8 @@
 import {
     AlignLeft, BarChart2, Bell, BookOpen, CheckCircle2,
-    ClipboardList, GalleryHorizontal, Image, Info,
+    ClipboardList, FileText, GalleryHorizontal, Image, Info,
     LayoutGrid, Layers, List, ListOrdered, Link, MapPin, Megaphone, Minus,
-    Newspaper, Play, Sparkles, Square, Users,
+    Newspaper, Plane, Play, Sparkles, Square, Users,
 } from 'lucide-react'
 
 // ── Contenido ─────────── blue
@@ -40,4 +40,6 @@ export const COMPONENT_META = {
     collection_links:      { Icon: Link,           bg: 'bg-emerald-50', iconColor: 'text-emerald-500', barColor: '#10b981' },
     info_items:            { Icon: Info,           bg: 'bg-emerald-50', iconColor: 'text-emerald-500', barColor: '#10b981' },
     form:                  { Icon: ClipboardList,  bg: 'bg-emerald-50', iconColor: 'text-emerald-500', barColor: '#10b981' },
+    full_form:             { Icon: FileText,       bg: 'bg-emerald-50', iconColor: 'text-emerald-500', barColor: '#10b981' },
+    import_request:        { Icon: Plane,          bg: 'bg-emerald-50', iconColor: 'text-emerald-500', barColor: '#10b981' },
 }

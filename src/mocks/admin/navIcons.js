@@ -1,5 +1,5 @@
 import { FaBook, FaCalendarAlt, FaCertificate, FaDoorOpen, FaHome, FaStar, FaTools, FaUserGraduate, FaWrench } from 'react-icons/fa'
-import { FaCarSide, FaCircleQuestion, FaComputer, FaKey, FaUsers } from 'react-icons/fa6'
+import { FaCarSide, FaCircleQuestion, FaComputer, FaKey, FaPlane, FaUsers } from 'react-icons/fa6'
 import { RiGraduationCapFill } from 'react-icons/ri'
 import { IoNewspaperSharp } from 'react-icons/io5'
 
@@ -22,6 +22,7 @@ export const NAV_ICON_MAP = {
     book: FaBook,
     car: FaCarSide,
     key: FaKey,
+    plane: FaPlane,
 }
 
 // ............................................................................
@@ -44,6 +45,7 @@ export const NAV_ICON_OPTIONS = [
     { value: 'book', label: 'Documentación' },
     { value: 'car', label: 'Coche' },
     { value: 'key', label: 'Llave / Importación' },
+    { value: 'plane', label: 'Avión / Importación' },
 ]
 
 export default NAV_ICON_MAP

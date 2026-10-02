@@ -39,6 +39,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  # Captura los correos que envía la API en desarrollo (no salen a internet)
+  # Bandeja: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
 
 volumes:
   pgdata:

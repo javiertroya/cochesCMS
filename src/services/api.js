@@ -54,6 +54,8 @@ const handleResponse = async (response) => {
         const apiError = new Error(error.error || error.message || detail || `Error ${response.status}: ${response.statusText}`);
         apiError.status = response.status;
         apiError.detail = detail;
+        // Errores de validación (422) campo a campo, tal como los devuelve FastAPI
+        apiError.errors = Array.isArray(error.detail) ? error.detail : undefined;
         throw apiError;
     }
     return response.json();

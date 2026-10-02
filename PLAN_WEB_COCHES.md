@@ -91,11 +91,16 @@
 - [ ] Componentes CMS `vehicle_grid` y `featured_vehicles`; ficha `/stock/:slug`.
 
 ### Fase 3 — Formularios y solicitudes
-- [ ] Tabla `requests` (tipo, estado, datos JSONB, vehículo opcional, adjuntos privados).
-- [ ] Ajustes → Notificaciones: correo único, asuntos por tipo, confirmación al cliente on/off.
-- [ ] Componentes `import_request_form` (opciones 1 y 2, capturas) y `form` (contacto); formulario "Me interesa" en la ficha.
-- [ ] Envío por Brevo/Resend; Turnstile; rate limiting.
-- [ ] Sección "Solicitudes" en el panel con estados.
+- [x] Tabla `requests` (tipo, estado, datos JSONB, vehículo opcional) — migración 0003. Capturas privadas en `data.attachments` (WebP sin EXIF, URLs firmadas).
+- [x] Correo único de avisos en el panel (Estilos → Solicitudes, `notification_email`, migración 0004) y asunto por tipo.
+- [ ] Confirmación por correo al cliente (on/off).
+- [x] Componente `full_form` ("Formulario completo": nombre, teléfono, email, mensaje) → `POST /api/requests`.
+- [x] Componente `import_request` ("Importación a la carta"): dos opciones con su formulario (`/api/requests/import-search` y `/api/requests/import-found` con capturas). Enlaces directos `#busqueda` / `#encontrado`.
+- [ ] Formulario "Me interesa" en la ficha (fase 2).
+- [x] Rate limiting básico (5 envíos / 10 min por IP, hash en BD) + campo trampa antispam.
+- [x] Envío SMTP en segundo plano (Mailpit en desarrollo; Brevo/Resend en producción: solo cambiar `SMTP_*`).
+- [ ] Turnstile.
+- [x] Sección "Solicitudes" en el panel con estados (admin y editor), cambios en el registro de actividad.
 
 ### Fase 4 — Financiación (oculta)
 - [ ] Ajustes: interruptor + parámetros + texto legal.
@@ -142,7 +147,7 @@ docker compose exec api python -m app.scripts.create_admin --email tu@email.com 
 | 0 — Base y limpieza | ✅ Hecha (2026-10-02) | |
 | 1 — Imágenes R2 | ✅ Hecha (2026-10-02) | Falta conectar la cuenta real de R2 |
 | 2 — Stock | Pendiente | |
-| 3 — Formularios | Pendiente | |
+| 3 — Formularios | En curso (2026-10-02) | Hecho: `requests`, `full_form`, `import_request` (2 opciones + capturas), Solicitudes, avisos por correo, rate limit. Falta: Turnstile, confirmación al cliente, "Me interesa" (con fase 2), credenciales SMTP reales |
 | 4 — Financiación | Pendiente | |
 | 5 — SEO | Pendiente | |
 | 6 — Despliegue | Pendiente | |

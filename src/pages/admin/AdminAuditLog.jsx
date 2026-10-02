@@ -40,6 +40,7 @@ const RESOURCE_LABELS = {
     collection_item: 'Ítem de colección',
     user:            'Usuario',
     media:           'Archivo',
+    request:         'Solicitud',
 }
 
 const relativeTime = (value) => {

@@ -13,6 +13,8 @@ import CmsInfoItems from './CmsInfoItems'
 import CmsDivider from './CmsDivider'
 import CmsFeatureList from './CmsFeatureList'
 import CmsForm from './CmsForm'
+import CmsFullForm from './CmsFullForm'
+import CmsImportRequest from './CmsImportRequest'
 import CmsGallery from './CmsGallery'
 import CmsHero from './CmsHero'
 import CmsInfoCard from './CmsInfoCard'
@@ -41,6 +43,8 @@ const renderers = {
     divider:          CmsDivider,
     feature_list:     CmsFeatureList,
     form:             CmsForm,
+    full_form:        CmsFullForm,
+    import_request:   CmsImportRequest,
     gallery:          CmsGallery,
     hero:             CmsHero,
     info_card:        CmsInfoCard,

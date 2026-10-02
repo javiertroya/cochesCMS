@@ -13,7 +13,7 @@ export const COMPONENT_GROUPS = [
     },
     {
         title: 'Datos y formularios',
-        types: ['latest_news', 'collection_links', 'info_items', 'form'],
+        types: ['latest_news', 'collection_links', 'info_items', 'form', 'full_form', 'import_request'],
     },
 ]
 
@@ -337,6 +337,33 @@ export const COMPONENT_SCHEMAS = {
                 { value: 'contacto', label: 'Contacto' },
             ],
         },
+    ],
+    // Campos fijos: nombre, teléfono, email y mensaje. Los envíos llegan a Solicitudes.
+    full_form: [
+        { name: 'anchor',             label: 'Ancla (ID)',                  type: 'text' },
+        { name: 'title',              label: 'Título',                      type: 'text' },
+        { name: 'subtitle',           label: 'Subtítulo',                   type: 'textarea' },
+        { name: 'messageLabel',       label: 'Etiqueta del campo de mensaje', type: 'text' },
+        { name: 'messagePlaceholder', label: 'Texto de ayuda del mensaje',  type: 'text' },
+        { name: 'buttonText',         label: 'Texto del botón',             type: 'text' },
+        { name: 'successMessage',     label: 'Mensaje tras enviar',         type: 'textarea' },
+    ],
+    // Dos opciones con su formulario. Enlaza a /pagina#busqueda o #encontrado para abrir uno directamente.
+    import_request: [
+        { name: 'anchor',           label: 'Ancla (ID)',                          type: 'text' },
+        { name: 'title',            label: 'Título',                              type: 'text' },
+        { name: 'subtitle',         label: 'Subtítulo',                           type: 'textarea' },
+        { name: 'searchCardTitle',  label: 'Opción 1 · Título (búsqueda)',        type: 'text' },
+        { name: 'searchCardText',   label: 'Opción 1 · Descripción',              type: 'textarea' },
+        { name: 'searchCardButton', label: 'Opción 1 · Texto del botón',          type: 'text' },
+        { name: 'foundCardTitle',   label: 'Opción 2 · Título (ya encontrado)',   type: 'text' },
+        { name: 'foundCardText',    label: 'Opción 2 · Descripción',              type: 'textarea' },
+        { name: 'foundCardButton',  label: 'Opción 2 · Texto del botón',          type: 'text' },
+        { name: 'searchFormTitle',  label: 'Formulario 1 · Título',               type: 'text' },
+        { name: 'searchFormIntro',  label: 'Formulario 1 · Introducción',         type: 'textarea' },
+        { name: 'foundFormTitle',   label: 'Formulario 2 · Título',               type: 'text' },
+        { name: 'foundFormIntro',   label: 'Formulario 2 · Introducción',         type: 'textarea' },
+        { name: 'successMessage',   label: 'Mensaje tras enviar',                 type: 'textarea' },
     ],
 }
 

@@ -26,6 +26,7 @@ const DEFAULTS = {
     footer_address: '',
     footer_map_embed: '',
     footer_copyright: '',
+    notification_email: '',
 }
 
 const useStylesForm = () => {
@@ -59,8 +60,9 @@ const useStylesForm = () => {
             reset(updated)
             applyAndSet?.(updated)
             toastManager.add({ title: 'Guardado', description: 'Configuración guardada correctamente.', type: 'success' })
-        } catch {
-            toastManager.add({ title: 'Error', description: 'No se pudo guardar la configuración.', type: 'error' })
+        } catch (error) {
+            const detail = error?.errors?.[0]?.msg?.replace(/^Value error, /, '')
+            toastManager.add({ title: 'Error', description: detail || 'No se pudo guardar la configuración.', type: 'error' })
         } finally {
             setSaving(false)
         }

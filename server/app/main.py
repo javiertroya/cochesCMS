@@ -15,6 +15,7 @@ from app.routes.redirect_routes import router as redirect_router
 from app.routes.upload_routes import router as upload_router
 from app.routes.media_routes import router as media_router
 from app.routes.site_settings_routes import router as site_settings_router
+from app.routes.request_routes import router as request_router
 from app.services.storage_service import get_storage, verify_private_signature
 
 # ............................
@@ -59,6 +60,7 @@ app.include_router(redirect_router)
 app.include_router(upload_router)
 app.include_router(media_router)
 app.include_router(site_settings_router)
+app.include_router(request_router)
 
 add_pagination(app)
 

@@ -8,6 +8,7 @@ import AdminUserMenu from '@/components/Admin/Layout/AdminUserMenu'
 
 const ROUTE_META = {
     '/admin':             { title: 'Inicio',          subtitle: 'Resumen y acciones rápidas' },
+    '/admin/requests':    { title: 'Solicitudes',     subtitle: 'Mensajes de clientes desde la web' },
     '/admin/pages':       { title: 'Páginas',         subtitle: 'Gestión de páginas y contenido dinámico' },
     '/admin/components':  { title: 'Componentes',     subtitle: 'Catálogo de componentes disponibles' },
     '/admin/carousel':    { title: 'Carrusel',        subtitle: 'Editor del carrusel de cabecera' },

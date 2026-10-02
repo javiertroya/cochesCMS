@@ -1,6 +1,6 @@
 import {
     LayoutDashboard, FileText, Layers3, Database,
-    ImageIcon, Navigation, Search, Link2,
+    ImageIcon, Inbox, Navigation, Search, Link2,
     Users, BarChart2, Activity, SlidersHorizontal, Palette,
 } from 'lucide-react'
 
@@ -9,6 +9,7 @@ export const NAV_GROUPS = [
         label: 'Contenido',
         items: [
             { id: 'overview',    label: 'Inicio',          icon: LayoutDashboard,   path: '/admin',              end: true },
+            { id: 'requests',    label: 'Solicitudes',     icon: Inbox,             path: '/admin/requests' },
             { id: 'pages',       label: 'Páginas',         icon: FileText,          path: '/admin/pages' },
             { id: 'components',  label: 'Componentes',     icon: Layers3,           path: '/admin/components' },
             { id: 'carousel',    label: 'Carrusel',        icon: SlidersHorizontal, path: '/admin/carousel' },
