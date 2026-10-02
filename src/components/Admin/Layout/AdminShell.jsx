@@ -12,7 +12,7 @@ const AdminShell = () => {
             <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
                 <AdminTopbar />
 
-                <main className="flex-1 overflow-hidden px-6 sm:px-10 lg:px-30 xl:px-60">
+                <main className="flex-1 overflow-hidden px-4 sm:px-6 lg:px-8 2xl:px-12">
                     <Outlet />
                 </main>
             </div>

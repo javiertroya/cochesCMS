@@ -209,14 +209,18 @@ const CollectionItemsManager = ({ collection }) => {
                 onReset={() => setAdminFilters({})}
             />
 
-            <div className="overflow-x-hidden">
-                <table className="w-full table-fixed text-left text-sm">
+            <div className="overflow-x-auto">
+                <table
+                    className="w-full table-fixed text-left text-sm"
+                    // Ancho mínimo por columna: en móvil la tabla se desplaza en horizontal en vez de aplastarse
+                    style={{ minWidth: `${Math.max(displayFields.length, 1) * 9 + 5}rem` }}
+                >
                     <colgroup>
                         {displayFields.map(field => (
                             <col key={field.name} />
                         ))}
                         {displayFields.length === 0 && <col />}
-                        <col className="w-20" />
+                        <col className="w-20" style={{ width: '5rem' }} />
                     </colgroup>
                     <thead className="border-b border-[#e5e7eb] bg-[#f6f7fb] text-xs uppercase tracking-wide text-[#6b7280]">
                         <tr>
@@ -235,14 +239,14 @@ const CollectionItemsManager = ({ collection }) => {
                     <tbody>
                         {loading && (
                             <tr>
-                                <td colSpan={displayFields.length + 2}>
+                                <td colSpan={Math.max(displayFields.length, 1) + 1}>
                                     <AdminLoadingState label="Cargando elementos…" />
                                 </td>
                             </tr>
                         )}
                         {!loading && error && (
                             <tr>
-                                <td colSpan={displayFields.length + 2}>
+                                <td colSpan={Math.max(displayFields.length, 1) + 1}>
                                     <AdminErrorState
                                         title="Error al cargar elementos"
                                         description="No se han podido cargar los elementos de esta colección."
@@ -253,8 +257,8 @@ const CollectionItemsManager = ({ collection }) => {
                         )}
                         {!loading && !error && items.length === 0 && (
                             <tr>
-                                <td colSpan={displayFields.length + 2}>
-                                    <div className="flex flex-col items-center gap-2 py-14 text-center">
+                                <td colSpan={Math.max(displayFields.length, 1) + 1}>
+                                    <div className="sticky left-0 flex w-[calc(100vw-2.25rem)] flex-col items-center gap-2 py-14 text-center sm:w-[calc(100vw-3.25rem)] lg:w-auto">
                                         <Database className="size-7 text-gray-200" />
                                         <p className="text-sm font-medium text-gray-400">Sin elementos</p>
                                         <p className="text-xs text-gray-300">Esta colección no tiene elementos todavía.</p>
@@ -264,7 +268,7 @@ const CollectionItemsManager = ({ collection }) => {
                         )}
                         {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
                             <tr>
-                                <td colSpan={displayFields.length + 2} className="py-8 text-center text-[#6b7280]">
+                                <td colSpan={Math.max(displayFields.length, 1) + 1} className="py-8 text-center text-[#6b7280]">
                                     No hay elementos que coincidan con los filtros.
                                 </td>
                             </tr>

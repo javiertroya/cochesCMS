@@ -13,3 +13,4 @@ __pycache__/
 .DS_Store
 server/private_uploads/*
 !server/private_uploads/.gitkeep
+CLAUDE.md
