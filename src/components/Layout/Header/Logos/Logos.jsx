@@ -2,7 +2,7 @@ import SiteBrand from '../SiteBrand'
 
 const Logos = ({ settings }) => {
     return (
-        <div className="hidden bg-white py-3 lg:block">
+        <div className="site-logos hidden bg-white py-3 lg:block">
             <div className="
                 flex items-center justify-start
                 px-page min-h-14 lg:min-h-18

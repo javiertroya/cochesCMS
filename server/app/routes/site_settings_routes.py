@@ -14,7 +14,7 @@ _SETTINGS_DIFF_FIELDS = {
     "text_color", "heading_color", "link_color",
     "font_family_heading", "font_family_body", "font_size_base",
     "border_radius", "footer_text", "footer_address", "footer_map_embed",
-    "footer_copyright", "notification_email",
+    "footer_copyright", "notification_email", "site_theme",
 }
 
 # Ajustes que no deben salir en la API pública

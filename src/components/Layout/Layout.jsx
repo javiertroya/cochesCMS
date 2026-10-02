@@ -1,4 +1,3 @@
-import { Fragment } from 'react'
 import { Outlet } from 'react-router-dom'
 
 // ............................................................
@@ -10,16 +9,20 @@ import BreadCrumbs from '../UI/Breadcrumbs'
 import HomeHero from '../Content/Home/HomeHero'
 
 import { useHeaderCarousel } from '../../context/HeaderCarouselContext'
+import { useSiteSettings } from '@/context/SiteSettingsContext'
 
 // ............................................................
 const Layout = () => {
 
     // .............................
     const { slides, isHome } = useHeaderCarousel()
+    const { settings } = useSiteSettings() ?? {}
+    // Tema visual (Estilos → Tema del sitio). Solo afecta a la web pública, no al panel
+    const theme = settings?.site_theme ?? 'classic'
 
     // .............................
     return (
-        <Fragment>
+        <div className="site-theme" data-theme={theme}>
             <Header />
             {
                 slides?.length > 0 && (
@@ -36,7 +39,7 @@ const Layout = () => {
                 <Outlet />
             </main>
             <Footer />
-        </Fragment>
+        </div>
     )
 }
 

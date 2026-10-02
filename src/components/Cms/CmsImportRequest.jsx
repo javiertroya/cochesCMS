@@ -31,10 +31,10 @@ const OptionCard = ({ option, title, text, button, active, onSelect }) => {
                     <Check className="size-4" />
                 </span>
             )}
-            <span className="flex size-14 items-center justify-center rounded-2xl bg-linear-to-br from-brand-dark to-brand-primary text-white shadow-md">
+            <span className="site-feature-icon flex size-14 items-center justify-center rounded-2xl bg-linear-to-br from-brand-dark to-brand-primary text-white shadow-md">
                 <Icon className="size-7" />
             </span>
-            <span className="mt-5 text-xl font-bold text-gray-900 sm:text-2xl">{title}</span>
+            <span className="site-card-title mt-5 text-xl font-bold text-gray-900 sm:text-2xl">{title}</span>
             {text && <span className="mt-2 flex-1 text-sm leading-relaxed text-gray-500 sm:text-base">{text}</span>}
             {button && (
                 <span className={`mt-6 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition ${

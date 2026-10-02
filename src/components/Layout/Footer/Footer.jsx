@@ -9,6 +9,7 @@ const Footer = () => {
     // .............................
     return (
         <footer className="
+            site-footer
             bg-footer
             text-gray-300
             px-page

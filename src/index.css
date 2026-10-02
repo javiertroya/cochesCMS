@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
+@import "./styles/theme-pro.css";
 
 @custom-variant dark (&:is(.dark *));
 

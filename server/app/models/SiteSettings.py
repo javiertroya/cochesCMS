@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel, field_validator
 from email_validator import EmailNotValidError, validate_email
 
@@ -25,6 +25,8 @@ class SiteSettingsUpdate(BaseModel):
     footer_address: Optional[str] = None
     footer_map_embed: Optional[str] = None
     footer_copyright: Optional[str] = None
+    # Tema visual de la web pública: classic (colores de Estilos) o pro (lujo)
+    site_theme: Optional[Literal["classic", "pro"]] = None
     # Correo que recibe los avisos de solicitudes (solo visible en el panel)
     notification_email: Optional[str] = None
 

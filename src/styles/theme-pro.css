@@ -1,0 +1,307 @@
+/* ============================================================================
+   Tema "Pro" — estética de lujo (negro, marfil y dorado)
+   Se activa en Estilos → Tema del sitio. Solo afecta a la web pública: el
+   atributo data-theme está en el envoltorio de Layout, no en el panel.
+   Las clases site-* son ganchos añadidos a los componentes públicos.
+   ============================================================================ */
+
+[data-theme="pro"] {
+	--pro-black: #0b0b0c;
+	--pro-ink: #151517;
+	--pro-ivory: #f7f4ef;
+	--pro-ivory-line: #e8e1d5;
+	--pro-gold: #c5a46d;
+	--pro-gold-soft: #dcc59c;
+	--pro-gold-deep: #94763f;
+	--pro-line: rgba(197, 164, 109, 0.26);
+	--pro-font-display: "Cormorant Garamond", "Times New Roman", Georgia, serif;
+	--pro-font-body: "Manrope", "Inter", system-ui, sans-serif;
+
+	/* Tokens de color que usan los componentes (Tailwind lee estas variables) */
+	--color-brand-primary: var(--pro-ink);
+	--color-brand-dark: var(--pro-black);
+	--color-brand-dark-deep: #000;
+	--color-brand-light: var(--pro-ivory);
+	--color-submit: var(--pro-ink);
+	--color-accent-nav: var(--pro-gold);
+	--color-footer: var(--pro-black);
+	--color-footer-divider: rgba(197, 164, 109, 0.2);
+	--color-footer-title: var(--pro-gold);
+	--color-breadcrumbs: var(--pro-ivory);
+	--site-link-color: var(--pro-gold-deep);
+	--site-font-body: var(--pro-font-body);
+	--site-font-heading: var(--pro-font-display);
+
+	background-color: #fff;
+	color: #1d1d1f;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* ── Tipografía ─────────────────────────────────────────────────────────── */
+[data-theme="pro"] :is(h1, h2, h3, .site-brand, .site-card-title, .site-section-title, .site-page-title, .site-hero-title, .site-cms-hero-title) {
+	font-family: var(--pro-font-display);
+	letter-spacing: 0.005em;
+}
+
+/* Botones de envío de formularios */
+[data-theme="pro"] button[type="submit"] {
+	border-radius: 2px;
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+}
+
+[data-theme="pro"] ::selection {
+	background: var(--pro-gold-soft);
+	color: var(--pro-black);
+}
+
+/* ── Formas: esquinas finas y sombras suaves ────────────────────────────── */
+[data-theme="pro"] :is(.rounded-xl, .rounded-2xl, .rounded-3xl) {
+	border-radius: 4px;
+}
+
+[data-theme="pro"] .rounded-lg {
+	border-radius: 3px;
+}
+
+/* ── Barra superior ─────────────────────────────────────────────────────── */
+[data-theme="pro"] .site-topbar {
+	background: #000;
+	border-bottom: 1px solid var(--pro-line);
+	color: var(--pro-gold-soft);
+	font-size: 0.78rem;
+	letter-spacing: 0.08em;
+}
+
+/* ── Logo y menú ────────────────────────────────────────────────────────── */
+[data-theme="pro"] .site-logos {
+	background: var(--pro-black);
+	padding-block: 1.25rem;
+}
+
+[data-theme="pro"] .site-logos > div {
+	justify-content: center;
+}
+
+[data-theme="pro"] .site-brand {
+	color: #fff;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.24em;
+}
+
+[data-theme="pro"] .site-logos .site-brand {
+	font-size: 1.85rem;
+}
+
+[data-theme="pro"] .site-nav {
+	background: var(--pro-black);
+	border-top: 1px solid var(--pro-line);
+	border-bottom: 1px solid var(--pro-line);
+}
+
+[data-theme="pro"] .site-nav .site-brand {
+	font-size: 1.05rem;
+	letter-spacing: 0.2em;
+}
+
+[data-theme="pro"] .site-nav-menu {
+	margin-inline: auto;
+	column-gap: 2.75rem;
+}
+
+[data-theme="pro"] .site-nav-link {
+	font-size: 0.74rem;
+	font-weight: 600;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.82);
+}
+
+[data-theme="pro"] .site-nav-icon {
+	display: none;
+}
+
+/* Menú desplegable en móvil */
+[data-theme="pro"] .site-nav .bg-brand-primary {
+	background: var(--pro-black);
+}
+
+[data-theme="pro"] .site-nav ul a {
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-size: 0.8rem;
+}
+
+/* ── Hero de portada (sobre la imagen del carrusel) ─────────────────────── */
+/* Móvil: la imagen se recorta y queda detrás del texto → velo vertical más oscuro */
+[data-theme="pro"] .site-hero-overlay {
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.7) 45%, rgba(0, 0, 0, 0.92) 100%);
+}
+
+@media (min-width: 768px) {
+	[data-theme="pro"] .site-hero-overlay {
+		background: linear-gradient(90deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.6) 42%, rgba(0, 0, 0, 0.08) 100%);
+	}
+}
+
+[data-theme="pro"] .site-hero-card {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	backdrop-filter: none;
+	padding-inline: 0;
+}
+
+[data-theme="pro"] .site-hero-eyebrow {
+	display: flex;
+	align-items: center;
+	gap: 0.9rem;
+	color: var(--pro-gold);
+	font-size: 0.7rem;
+	letter-spacing: 0.34em;
+}
+
+[data-theme="pro"] .site-hero-eyebrow::before {
+	content: "";
+	flex: none;
+	width: 2.5rem;
+	height: 1px;
+	background: var(--pro-gold);
+}
+
+[data-theme="pro"] .site-hero-title {
+	font-weight: 500;
+	font-size: clamp(2.35rem, 5.2vw, 4.4rem);
+	line-height: 1.02;
+	letter-spacing: -0.01em;
+}
+
+[data-theme="pro"] :is(.site-hero-primary, .site-hero-secondary, .site-cms-hero-button) {
+	height: 3rem;
+	padding-inline: 1.75rem;
+	border-radius: 2px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+}
+
+[data-theme="pro"] :is(.site-hero-primary, .site-cms-hero-button) {
+	display: inline-flex;
+	align-items: center;
+	background: var(--pro-gold);
+	border: 1px solid var(--pro-gold);
+	color: var(--pro-black);
+	box-shadow: none;
+}
+
+[data-theme="pro"] :is(.site-hero-primary, .site-cms-hero-button):hover {
+	background: var(--pro-gold-soft);
+	border-color: var(--pro-gold-soft);
+}
+
+[data-theme="pro"] .site-hero-secondary {
+	border-color: rgba(255, 255, 255, 0.45);
+}
+
+[data-theme="pro"] .site-hero-secondary:hover {
+	border-color: #fff;
+	background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Migas y título de página ───────────────────────────────────────────── */
+[data-theme="pro"] .site-breadcrumbs {
+	border-bottom: 1px solid var(--pro-ivory-line);
+	color: #6b665d;
+	font-size: 0.72rem;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+[data-theme="pro"] .site-page-title {
+	font-weight: 500;
+	font-size: clamp(2rem, 3.4vw, 2.75rem);
+	line-height: 1.1;
+}
+
+[data-theme="pro"] hr {
+	border-color: var(--pro-ivory-line);
+}
+
+/* ── Secciones CMS ──────────────────────────────────────────────────────── */
+[data-theme="pro"] .cms-band.bg-gray-50 {
+	background-color: var(--pro-ivory);
+}
+
+[data-theme="pro"] .site-section-title {
+	font-weight: 500;
+	font-size: clamp(1.9rem, 3vw, 2.5rem);
+	line-height: 1.1;
+}
+
+[data-theme="pro"] .site-section-bar {
+	width: 3rem;
+	height: 1px;
+	background: var(--pro-gold);
+}
+
+[data-theme="pro"] .site-card-title {
+	font-weight: 600;
+	font-size: 1.7rem;
+	line-height: 1.15;
+}
+
+[data-theme="pro"] .site-feature-icon {
+	background-image: none;
+	background-color: var(--pro-black);
+	color: var(--pro-gold);
+	border: 1px solid var(--pro-line);
+	box-shadow: none;
+	border-radius: 2px;
+}
+
+/* Tarjetas apiladas (Nuestros servicios) */
+[data-theme="pro"] .scroll-stack-card {
+	border-radius: 4px;
+	border: 1px solid var(--pro-ivory-line);
+	box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.35);
+}
+
+/* Bloques destacados (Hero y CTA del CMS) */
+[data-theme="pro"] .site-cms-hero {
+	background-image:
+		radial-gradient(ellipse 70% 90% at 100% 0%, rgba(197, 164, 109, 0.18), transparent 60%),
+		linear-gradient(135deg, var(--pro-black), #1b1b1e);
+	border: 1px solid var(--pro-line);
+}
+
+[data-theme="pro"] .site-cms-hero h1,
+[data-theme="pro"] .site-cms-hero h2 {
+	font-weight: 500;
+}
+
+/* ── Pie ────────────────────────────────────────────────────────────────── */
+[data-theme="pro"] .site-footer .text-footer-title {
+	font-family: var(--pro-font-body);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.24em;
+}
+
+[data-theme="pro"] .site-footer button[type="submit"] {
+	background: transparent;
+	border: 1px solid var(--pro-gold);
+	color: var(--pro-gold);
+}
+
+[data-theme="pro"] .site-footer button[type="submit"]:hover {
+	background: var(--pro-gold);
+	color: var(--pro-black);
+}
+
+[data-theme="pro"] .site-footer a:hover {
+	color: var(--pro-gold-soft);
+}

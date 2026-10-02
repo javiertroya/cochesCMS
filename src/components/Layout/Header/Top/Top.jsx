@@ -16,6 +16,7 @@ const Top = (props) => {
     // ............................
     return (
         <div className="
+            site-topbar
             flex items-center justify-between
             sticky top-0 z-60
             min-h-9 gap-3 px-page py-1 sm:py-0

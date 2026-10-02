@@ -10,7 +10,7 @@ _COLUMNS = """
     text_color, heading_color, link_color,
     font_family_heading, font_family_body, font_size_base,
     border_radius, footer_text, footer_address, footer_map_embed,
-    footer_copyright, notification_email, updated_at
+    footer_copyright, notification_email, site_theme, updated_at
 """
 
 

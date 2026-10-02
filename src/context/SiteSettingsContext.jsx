@@ -20,8 +20,22 @@ const loadGoogleFont = (fontName) => {
     document.head.appendChild(link)
 }
 
+// Fuentes del tema "pro": titulares con serifa elegante + texto sans moderno
+const PRO_FONTS_HREF = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap'
+
+const loadProFonts = () => {
+    if (document.getElementById('gfont-theme-pro')) return
+    const link = document.createElement('link')
+    link.id = 'gfont-theme-pro'
+    link.rel = 'stylesheet'
+    link.href = PRO_FONTS_HREF
+    document.head.appendChild(link)
+}
+
 export const applyStyles = (settings) => {
     const root = document.documentElement
+
+    if (settings.site_theme === 'pro') loadProFonts()
 
     if (settings.primary_color) {
         root.style.setProperty('--color-brand-primary', settings.primary_color)

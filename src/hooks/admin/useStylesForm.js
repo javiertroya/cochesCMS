@@ -27,6 +27,7 @@ const DEFAULTS = {
     footer_map_embed: '',
     footer_copyright: '',
     notification_email: '',
+    site_theme: 'classic',
 }
 
 const useStylesForm = () => {

@@ -39,6 +39,7 @@ const BreadCrumbs = () => {
     // .............................
     return (
         <nav className="
+            site-breadcrumbs
             flex items-center gap-1.5
             min-h-10 w-full overflow-x-auto
             px-page

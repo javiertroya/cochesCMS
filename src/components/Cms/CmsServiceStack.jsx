@@ -65,11 +65,11 @@ const CmsServiceStack = ({ title, subtitle, items = [], showLinks = true }) => {
                     return (
                         <ScrollStackItem key={index} itemClassName={itemBg}>
                             <div className="flex h-full flex-col items-start gap-5 md:flex-row md:items-center md:gap-10">
-                                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br ${gradient} text-white shadow-md md:h-20 md:w-20`}>
+                                <div className={`site-feature-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br ${gradient} text-white shadow-md md:h-20 md:w-20`}>
                                     <Icon className="size-7 md:size-9" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h3 className="text-xl font-bold text-gray-900 sm:text-2xl">{item.title}</h3>
+                                    <h3 className="site-card-title text-xl font-bold text-gray-900 sm:text-2xl">{item.title}</h3>
                                     <p className="mt-3 max-w-xl text-sm leading-relaxed text-gray-500 sm:text-base">{item.description}</p>
                                 </div>
                                 {showLinks && item.to && (

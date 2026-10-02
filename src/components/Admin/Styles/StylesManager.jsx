@@ -5,6 +5,7 @@ import ColorsSection from '@/components/Admin/Styles/ColorsSection'
 import FooterSection from '@/components/Admin/Styles/FooterSection'
 import HeaderSection from '@/components/Admin/Styles/HeaderSection'
 import NotificationsSection from '@/components/Admin/Styles/NotificationsSection'
+import ThemeSection from '@/components/Admin/Styles/ThemeSection'
 import SiteInfoSection from '@/components/Admin/Styles/SiteInfoSection'
 import TypographySection from '@/components/Admin/Styles/TypographySection'
 import { Button } from '@/components/UI/coss/button'
@@ -40,6 +41,7 @@ const StylesManager = ({ form }) => {
                         </div>
                     </AdminPageHeader>
 
+                    <ThemeSection control={control} watch={watch} />
                     <SiteInfoSection register={register} control={control} watch={watch} />
                     <HeaderSection register={register} control={control} watch={watch} />
                     <ColorsSection control={control} applyPreset={applyPreset} preview={preview} />

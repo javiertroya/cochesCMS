@@ -59,6 +59,7 @@ const Navigator = (props) => {
     // .............................
     return (
         <nav className="
+            site-nav
             sticky z-40 top-9
             h-13 lg:h-15
             bg-brand-primary
@@ -80,7 +81,7 @@ const Navigator = (props) => {
                     {mobileOpen ? <X size={22} /> : <Menu size={22} />}
                 </button>
             </div>
-            <div className="hidden h-full items-center px-page lg:flex">
+            <div className="site-nav-desktop hidden h-full items-center px-page lg:flex">
                 <div
                     className={`
                         flex shrink-0 items-center overflow-hidden transition-all duration-300
@@ -95,7 +96,7 @@ const Navigator = (props) => {
                         textClassName="text-base font-extrabold tracking-tight text-white"
                     />
                 </div>
-                <ul className="flex h-full min-w-0 items-center gap-x-8 xl:gap-x-10">
+                <ul className="site-nav-menu flex h-full min-w-0 items-center gap-x-8 xl:gap-x-10">
                     {
                         menu.map(renderMenuItem)
                     }

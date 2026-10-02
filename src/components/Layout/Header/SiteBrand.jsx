@@ -10,7 +10,7 @@ const SiteBrand = ({ settings, className = '', imageClassName = 'h-8 lg:h-10', t
             {logoUrl ? (
                 <img src={logoUrl} alt={siteName} className={`block w-auto object-contain ${imageClassName}`} />
             ) : (
-                <span className={textClassName}>
+                <span className={`site-brand ${textClassName}`}>
                     {siteName}
                 </span>
             )}

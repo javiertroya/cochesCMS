@@ -23,6 +23,7 @@ const MenuItem = (props) => {
                 aria-haspopup={subItems ? "menu" : undefined}
                 aria-expanded={subItems ? isOpen : undefined}
                 className="
+                    site-nav-link
                     peer
                     flex items-center h-full
                     text-current
@@ -30,7 +31,7 @@ const MenuItem = (props) => {
                     transition-colors duration-200
                 "
             >
-                { Icon && <Icon className="mr-2" size={22} /> }
+                { Icon && <Icon className="site-nav-icon mr-2" size={22} /> }
                 { label }
                 {
                     subItems && (
