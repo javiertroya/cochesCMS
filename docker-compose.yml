@@ -1,0 +1,44 @@
+# Entorno de DESARROLLO: PostgreSQL + API con recarga automática.
+# El frontend se arranca aparte con `npm run dev` (proxy de Vite a :8000).
+#
+#   docker compose up -d --build
+#   docker compose exec api python -m app.scripts.create_admin --email tu@email.com --name "Tu nombre"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-coches_cms}
+      POSTGRES_USER: ${DB_USER:-coches_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-coches_dev_password}
+    ports:
+      # Solo accesible desde tu PC (DBeaver, psql…). 5433 porque 5432 suele estar ocupado por un Postgres local
+      - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./server
+    restart: unless-stopped
+    env_file: ./server/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # Código montado para recarga en caliente + archivos subidos en local
+      - ./server:/app
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

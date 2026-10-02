@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.tools/
+.env
+server/.env
+server/.venv/
+server/.uv-python/
+server/.pgdata/
+server/uploads/*
+!server/uploads/.gitkeep
+__pycache__/
+*.pyc
+.DS_Store
+server/private_uploads/*
+!server/private_uploads/.gitkeep
