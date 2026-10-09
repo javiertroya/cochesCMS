@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom'
 
+import BrandField, { resolveBrand, validateBrand } from './BrandField'
 import { ContactFields, Field, Honeypot, SubmitRow, SuccessState } from './FormControls'
 import useRequestForm, { CONTACT_INITIAL, validateContact } from './useRequestForm'
 import { submitImportSearchRequest } from '@/services/request_service'
@@ -30,7 +31,7 @@ const TIMEFRAME_OPTIONS = [
 
 const INITIAL = {
     ...CONTACT_INITIAL,
-    brand: '', model: '', version: '',
+    brand: '', brand_other: '', model: '', version: '',
     year_from: '', max_km: '', fuel: '', transmission: '',
     max_budget: '', timeframe: '', must_have: '', comments: '',
 }
@@ -42,7 +43,7 @@ const toInt = (value) => {
 
 const validate = (values) => {
     const errors = validateContact(values)
-    if (!values.brand.trim()) errors.brand = 'Indica la marca'
+    validateBrand(values, errors)
     if (!values.model.trim()) errors.model = 'Indica el modelo'
     const budget = toInt(values.max_budget)
     if (!budget || budget < 1000) errors.max_budget = 'Indica tu presupuesto máximo (mínimo 1.000 €)'
@@ -60,7 +61,7 @@ const ImportSearchForm = ({ buttonText, successMessage }) => {
             name: values.name.trim(),
             phone: values.phone.trim(),
             email: values.email.trim(),
-            brand: values.brand.trim(),
+            brand: resolveBrand(values),
             model: values.model.trim(),
             version: values.version.trim(),
             year_from: toInt(values.year_from),
@@ -88,7 +89,7 @@ const ImportSearchForm = ({ buttonText, successMessage }) => {
             <fieldset className="space-y-5">
                 <legend className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400">El coche que buscas</legend>
                 <div className="grid gap-5 sm:grid-cols-2">
-                    <Field form={form} name="brand" label="Marca" required placeholder="Ej. BMW" maxLength={80} />
+                    <BrandField form={form} placeholder="Ej. Lancia" />
                     <Field form={form} name="model" label="Modelo" required placeholder="Ej. X3" maxLength={80} />
                     <Field form={form} name="version" label="Versión / acabado" placeholder="Ej. xDrive30e M Sport" maxLength={120} className="sm:col-span-2" />
                     <Field form={form} name="year_from" label="Año mínimo" inputMode="numeric" placeholder={`Ej. ${CURRENT_YEAR - 3}`} maxLength={4} />

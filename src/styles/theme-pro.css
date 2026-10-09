@@ -348,6 +348,20 @@
 	background: var(--pro-gold);
 }
 
+[data-theme="pro"] .site-filter-panel {
+	background: var(--pro-ivory);
+}
+
+[data-theme="pro"] .site-filter-option:hover {
+	background: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="pro"] .site-price-filter-summary {
+	font-family: var(--pro-font-display);
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+
 /* Bloques destacados (Hero y CTA del CMS) */
 [data-theme="pro"] .site-cms-hero {
 	background-image:

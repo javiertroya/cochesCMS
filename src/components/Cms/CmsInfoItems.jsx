@@ -347,7 +347,7 @@ const CmsInfoItems = ({ collection, displayFields, showFilters, enabledFilters }
     }, [relationFields, relationData])
 
     const booleanFields = useMemo(
-        () => schema.filter(field => field.type === 'boolean'),
+        () => schema.filter(field => field.type === 'boolean' && !STATUS_FIELDS.includes(field.name)),
         [schema],
     )
 

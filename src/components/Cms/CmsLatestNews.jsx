@@ -7,7 +7,7 @@ import NewsCard from '@/components/UI/NewsCard'
 import NewsGridSkeleton from '@/components/Content/Home/NewsGridSkeleton'
 import SectionHeading from '@/components/Cms/SectionHeading'
 import useCollection from '@/hooks/useCollection'
-import { getImageUrl, getTitle } from '@/utils/collection'
+import { getImageUrl, getTitle, isFeatured } from '@/utils/collection'
 
 const DESCRIPTION_FIELDS = ['description', 'descripcion', 'entrada', 'cuerpo', 'content', 'contenido', 'subtitle', 'subtitulo']
 const DATE_FIELDS = ['publishedAt', 'date', 'fecha_publicacion', 'created_at']
@@ -52,11 +52,16 @@ const CmsLatestNews = ({ collection = 'noticias', title, subtitle, limit = 3, li
     }, [load])
 
     const normalizedLimit = String(limit)
-    const sortedItems = [...items].sort((a, b) => {
-        const dateDiff = getTimestamp(b) - getTimestamp(a)
-        if (dateDiff !== 0) return dateDiff
-        return Number(b.id ?? b.local_id ?? 0) - Number(a.id ?? a.local_id ?? 0)
-    })
+    // Destacados primero; después (y dentro de cada grupo) lo más reciente. Los inactivos no se muestran
+    const sortedItems = items
+        .filter(item => item.activo !== false)
+        .sort((a, b) => {
+            const featuredDiff = Number(isFeatured(b)) - Number(isFeatured(a))
+            if (featuredDiff !== 0) return featuredDiff
+            const dateDiff = getTimestamp(b) - getTimestamp(a)
+            if (dateDiff !== 0) return dateDiff
+            return Number(b.id ?? b.local_id ?? 0) - Number(a.id ?? a.local_id ?? 0)
+        })
     const latestItems = normalizedLimit === 'all'
         ? sortedItems
         : sortedItems.slice(0, Number(normalizedLimit) || 3)

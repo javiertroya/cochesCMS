@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ImagePlus, Images, Link2, Trash2, UploadCloud, X } from 'lucide-react'
+import { ImagePlus, Images, Link2, Star, Trash2, UploadCloud, X } from 'lucide-react'
 
 import { Button } from '@/components/UI/coss/button'
 import MediaField from '@/components/Admin/Pages/MediaField'
@@ -87,6 +87,11 @@ const ImagesField = ({ value = [], onChange, target = 'media', hint }) => {
         onChange(images.filter(image => image !== url))
     }
 
+    // La principal es siempre la primera del array (portada en tarjetas y fichas)
+    const makeMain = (url) => {
+        onChange([url, ...images.filter(image => image !== url)])
+    }
+
     const handleUpload = async (event) => {
         const files = Array.from(event.target.files ?? [])
         if (files.length === 0) return
@@ -120,12 +125,27 @@ const ImagesField = ({ value = [], onChange, target = 'media', hint }) => {
             {images.length > 0 ? (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {images.map((url, index) => (
-                        <div key={url} className="group relative overflow-hidden rounded-lg border border-[#e5e7eb] bg-[#f9fafb]">
+                        <div
+                            key={url}
+                            className={`group relative overflow-hidden rounded-lg border bg-[#f9fafb] ${
+                                index === 0 ? 'border-amber-400 ring-2 ring-amber-400/40' : 'border-[#e5e7eb]'
+                            }`}
+                        >
                             <img src={resolveMediaUrl(url)} alt="" className="h-28 w-full object-cover" />
-                            {index === 0 && (
-                                <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-semibold text-[#374151] shadow-sm">
-                                    Portada
+                            {index === 0 ? (
+                                <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-amber-950 shadow-sm">
+                                    <Star size={10} className="fill-current" />
+                                    Principal
                                 </span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => makeMain(url)}
+                                    className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-semibold text-[#374151] shadow-sm transition hover:bg-amber-400 hover:text-amber-950 sm:opacity-0 sm:group-hover:opacity-100"
+                                >
+                                    <Star size={10} />
+                                    Hacer principal
+                                </button>
                             )}
                             <Button
                                 type="button"
@@ -188,7 +208,7 @@ const ImagesField = ({ value = [], onChange, target = 'media', hint }) => {
             </div>
 
             <p className="text-xs text-[#6b7280]">
-                {hint ?? 'La primera imagen se usará como portada.'}
+                {hint ?? 'La foto principal se usa como portada en el catálogo. Pasa el ratón por otra foto y pulsa «Hacer principal» para cambiarla.'}
             </p>
 
             <MediaPicker

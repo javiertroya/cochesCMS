@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowRight, Database, ExternalLink } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Database, ExternalLink, SlidersHorizontal, X } from 'lucide-react'
 import { Spinner } from '@/components/UI/coss/spinner'
 
 import FilterBadge from '@/components/UI/FilterBadge'
 import PriceRangeFilter from '@/components/UI/PriceRangeFilter'
 import useCollection from '@/hooks/useCollection'
 import { FeaturedBadge } from '@/components/UI/ImageGallery'
-import { formatPrice, getImageUrl, getPriceField, getTitle, isFeatured, PRICE_FIELDS, sortFeaturedFirst } from '@/utils/collection'
+import { formatPrice, getImageUrls, getPriceField, getTitle, isFeatured, PRICE_FIELDS, sortFeaturedFirst, STATUS_FIELDS } from '@/utils/collection'
 import { getPublicCollectionBySlug } from '@/services/collection_service'
 import { resolveMediaUrl } from '@/utils/media'
 
@@ -78,14 +78,14 @@ const CollectionFilters = ({
     booleanFields,
     priceFields,
     priceLimits,
-    usedValues,
+    usedCounts,
     filters,
     onChange,
 }) => {
     if (relationFields.length === 0 && secondLevelFields.length === 0 && booleanFields.length === 0 && priceFields.length === 0) return null
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             {booleanFields.map(field => (
                 <div key={field.name} className="space-y-2">
                     <p className="text-sm font-medium text-slate-700">{field.label ?? field.name}</p>
@@ -106,35 +106,46 @@ const CollectionFilters = ({
             {relationFields.map(field => {
                 const related = relationData[field.name]
                 const relatedSchema = related?.schema ?? []
+                const counts = usedCounts[field.name] ?? new Map()
                 // Solo las opciones que tiene algún elemento publicado (p. ej. marcas con coches)
-                const options = (related?.items ?? [])
-                    .filter(option => usedValues[field.name]?.has(getTitle(option, relatedSchema)))
-                    .sort((a, b) => getTitle(a, relatedSchema).localeCompare(getTitle(b, relatedSchema), 'es'))
+                const labels = (related?.items ?? [])
+                    .map(option => getTitle(option, relatedSchema))
+                    .filter(label => counts.has(label))
+                    .sort((a, b) => a.localeCompare(b, 'es'))
 
-                if (options.length === 0) return null
+                if (labels.length === 0) return null
+
+                const total = [...counts.values()].reduce((sum, count) => sum + count, 0)
+                const rows = [{ value: '', label: 'Todas', count: total }, ...labels.map(label => ({ value: label, label, count: counts.get(label) }))]
 
                 return (
-                    <div key={field.name} className="space-y-3">
-                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gray-500">{field.label ?? field.name}</p>
-                        <div className="flex flex-wrap gap-2">
-                            <FilterBadge active={!filters[field.name]} onClick={() => onChange(field.name, '')}>
-                                Todos
-                            </FilterBadge>
-                            {options.map(option => {
-                                const label = getTitle(option, relatedSchema)
-
+                    <FilterSection key={field.name} title={field.label ?? field.name}>
+                        <ul className="-mx-2 space-y-0.5">
+                            {rows.map(row => {
+                                const active = (filters[field.name] ?? '') === row.value
                                 return (
-                                    <FilterBadge
-                                        key={option.id}
-                                        active={filters[field.name] === label}
-                                        onClick={() => onChange(field.name, label)}
-                                    >
-                                        {label}
-                                    </FilterBadge>
+                                    <li key={row.value || '__all'}>
+                                        <button
+                                            type="button"
+                                            onClick={() => onChange(field.name, row.value)}
+                                            aria-pressed={active}
+                                            className={`site-filter-option flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left text-sm transition ${
+                                                active ? 'font-semibold text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                            }`}
+                                        >
+                                            <span className={`site-filter-dot flex size-3.5 shrink-0 items-center justify-center rounded-full border transition ${
+                                                active ? 'border-brand-primary' : 'border-gray-300'
+                                            }`}>
+                                                {active && <span className="size-1.5 rounded-full bg-brand-primary" />}
+                                            </span>
+                                            <span className="min-w-0 flex-1 truncate">{row.label}</span>
+                                            <span className="text-xs tabular-nums text-gray-400">{row.count}</span>
+                                        </button>
+                                    </li>
                                 )
                             })}
-                        </div>
-                    </div>
+                        </ul>
+                    </FilterSection>
                 )
             })}
 
@@ -172,17 +183,25 @@ const CollectionFilters = ({
             })}
 
             {priceFields.map(field => (
-                <PriceRangeFilter
-                    key={field.name}
-                    label={field.label?.replace(/\s*\(€\)\s*$/, '') ?? field.name}
-                    max={priceLimits[field.name] ?? 0}
-                    value={filters[field.name] ?? null}
-                    onChange={value => onChange(field.name, value)}
-                />
+                <FilterSection key={field.name} title={field.label?.replace(/\s*\(€\)\s*$/, '') ?? field.name}>
+                    <PriceRangeFilter
+                        max={priceLimits[field.name] ?? 0}
+                        value={filters[field.name] ?? null}
+                        onChange={value => onChange(field.name, value)}
+                    />
+                </FilterSection>
             ))}
         </div>
     )
 }
+
+// Bloque del panel de filtros: título en versalitas y línea fina de separación
+const FilterSection = ({ title, children }) => (
+    <section className="border-t border-gray-100 pt-5 first:border-t-0 first:pt-0">
+        <h3 className="mb-3 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-gray-400">{title}</h3>
+        {children}
+    </section>
+)
 
 const formatValue = (field, value) => {
     if (Array.isArray(value)) return value.join(', ')
@@ -194,9 +213,64 @@ const formatValue = (field, value) => {
     return String(value)
 }
 
+// Variante mediana (960 px) que genera el backend al subir: carga mucho más rápido en el listado
+const toCardSize = (url) => url.replace(/\.webp$/i, '-md.webp')
+
+// Fotos de la tarjeta con flechas: solo se carga la visible; las flechas no abren el enlace de la tarjeta
+const CardImageSlider = ({ images, alt }) => {
+    const [index, setIndex] = useState(0)
+    const [failed, setFailed] = useState({})
+    const total = images.length
+    const current = images[index % total]
+    const src = resolveMediaUrl(failed[current] ? current : toCardSize(current))
+
+    const go = (event, step) => {
+        event.preventDefault()
+        event.stopPropagation()
+        setIndex(prev => (prev + step + total) % total)
+    }
+
+    const arrowClass = 'absolute top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white lg:opacity-0 lg:group-hover:opacity-100'
+
+    return (
+        <>
+            <img
+                key={current}
+                src={src}
+                alt={alt}
+                loading="lazy"
+                onError={() => setFailed(prev => ({ ...prev, [current]: true }))}
+                className="size-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]"
+            />
+            {total > 1 && (
+                <>
+                    <button type="button" onClick={e => go(e, -1)} aria-label="Foto anterior" className={`${arrowClass} left-3`}>
+                        <ChevronLeft size={18} />
+                    </button>
+                    <button type="button" onClick={e => go(e, 1)} aria-label="Foto siguiente" className={`${arrowClass} right-3`}>
+                        <ChevronRight size={18} />
+                    </button>
+                    <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center gap-1.5">
+                        {images.slice(0, 8).map((url, dot) => (
+                            <span
+                                key={url}
+                                className={`size-1.5 rounded-full transition ${dot === index % total ? 'bg-white' : 'bg-white/50'}`}
+                            />
+                        ))}
+                    </div>
+                    <span className="absolute right-3 top-3 z-10 rounded-full bg-black/55 px-2 py-0.5 text-[0.65rem] font-medium tabular-nums text-white">
+                        {(index % total) + 1} / {total}
+                    </span>
+                </>
+            )}
+        </>
+    )
+}
+
 const CollectionLinkCard = ({ item, schema, displayFields, collection }) => {
+    const { pathname } = useLocation()
     const title = getTitle(item, schema)
-    const imageUrl = getImageUrl(item, schema)
+    const images = getImageUrls(item, schema)
     const externalHref = item.url ?? item.URL ?? null
     const detailHref = `/coleccion/${collection}/${item.id ?? item.local_id}`
     const priceField = getPriceField(item)
@@ -215,13 +289,8 @@ const CollectionLinkCard = ({ item, schema, displayFields, collection }) => {
         <article className="site-collection-card group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-500 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_24px_48px_-28px_rgba(0,0,0,0.35)]">
             <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                 {isFeatured(item) && <FeaturedBadge className="absolute left-4 top-4 z-10" />}
-                {imageUrl ? (
-                    <img
-                        src={resolveMediaUrl(imageUrl)}
-                        alt={title}
-                        loading="lazy"
-                        className="size-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]"
-                    />
+                {images.length > 0 ? (
+                    <CardImageSlider images={images} alt={title} />
                 ) : (
                     <div className="flex size-full items-center justify-center">
                         <Database className="size-10 text-gray-300" />
@@ -276,7 +345,8 @@ const CollectionLinkCard = ({ item, schema, displayFields, collection }) => {
         )
     }
 
-    return <Link to={detailHref} className="block h-full">{inner}</Link>
+    // fromPath: la ficha lo usa para el breadcrumb (Inicio › Catálogo › Coche)
+    return <Link to={detailHref} state={{ fromPath: pathname }} className="block h-full">{inner}</Link>
 }
 
 const CmsCollectionLinks = ({ collection, title, subtitle, displayFields, showFilters, enabledFilters }) => {
@@ -284,6 +354,7 @@ const CmsCollectionLinks = ({ collection, title, subtitle, displayFields, showFi
     const [relationData, setRelationData] = useState({})
     const [secondLevelRelationData, setSecondLevelRelationData] = useState({})
     const [filters, setFilters] = useState({})
+    const [filtersOpen, setFiltersOpen] = useState(true)
 
     useEffect(() => { load() }, [load])
 
@@ -315,8 +386,10 @@ const CmsCollectionLinks = ({ collection, title, subtitle, displayFields, showFi
         return result
     }, [relationFields, relationData])
 
+    // Activo/destacado no son filtros para el visitante: los inactivos nunca se muestran
+    // y los destacados salen siempre primero
     const booleanFields = useMemo(
-        () => normalizedSchema.filter(field => field.type === 'boolean'),
+        () => normalizedSchema.filter(field => field.type === 'boolean' && !STATUS_FIELDS.includes(field.name)),
         [normalizedSchema],
     )
 
@@ -454,10 +527,15 @@ const CmsCollectionLinks = ({ collection, title, subtitle, displayFields, showFi
     }
 
     // Valores de los elementos publicados: opciones de los filtros y tope de la barra de precio
-    const usedValues = Object.fromEntries(activeRelationFields.map(field => [
-        field.name,
-        new Set(published.flatMap(item => [item[field.name]].flat().map(value => String(value ?? '')))),
-    ]))
+    const usedCounts = Object.fromEntries(activeRelationFields.map(field => {
+        const counts = new Map()
+        published.forEach(item => {
+            [item[field.name]].flat().filter(Boolean).forEach(value => {
+                counts.set(String(value), (counts.get(String(value)) ?? 0) + 1)
+            })
+        })
+        return [field.name, counts]
+    }))
     const priceLimits = Object.fromEntries(activePriceFields.map(field => [
         field.name,
         Math.max(0, ...published.map(item => Number(item[field.name])).filter(Number.isFinite)),
@@ -478,61 +556,84 @@ const CmsCollectionLinks = ({ collection, title, subtitle, displayFields, showFi
                 </header>
             )}
 
-            {showFilters && (
-                <div className="site-filter-panel mb-8 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 lg:mb-10">
-                    <CollectionFilters
-                        relationFields={activeRelationFields}
-                        relationData={relationData}
-                        secondLevelFields={activeSecondLevelFields}
-                        secondLevelRelationData={secondLevelRelationData}
-                        booleanFields={activeBooleanFields}
-                        priceFields={visiblePriceFields}
-                        priceLimits={priceLimits}
-                        usedValues={usedValues}
-                        filters={filters}
-                        onChange={(fieldName, value) => setFilters(prev => ({ ...prev, [fieldName]: value }))}
-                    />
-                    <div className="mt-6 flex items-center justify-between gap-4 border-t border-gray-100 pt-4 text-sm">
-                        <p className="text-gray-500">
-                            {visible.length} {visible.length === 1 ? 'resultado' : 'resultados'}
-                        </p>
-                        {hasFiltersApplied && (
+            {/* Escritorio con filtros: caja lateral fija a la izquierda y tarjetas a la derecha */}
+            <div className={showFilters ? 'lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:items-start lg:gap-10' : ''}>
+                {showFilters && (
+                    <aside className="site-filter-panel mb-8 rounded-xl bg-gray-50/80 p-5 lg:sticky lg:top-6 lg:mb-0 lg:p-6">
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-baseline gap-2.5">
+                                <p className="flex items-center gap-2 self-center text-sm font-semibold text-gray-900">
+                                    <SlidersHorizontal size={15} className="text-gray-500" />
+                                    Filtros
+                                </p>
+                                <p className="text-xs tabular-nums text-gray-500">
+                                    {visible.length} {visible.length === 1 ? 'resultado' : 'resultados'}
+                                </p>
+                            </div>
+                            {/* Solo en móvil: abierto por defecto, se puede contraer. En escritorio siempre abierto */}
                             <button
                                 type="button"
-                                onClick={() => setFilters({})}
-                                className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gray-900 underline underline-offset-4 hover:text-brand-primary"
+                                onClick={() => setFiltersOpen(open => !open)}
+                                aria-expanded={filtersOpen}
+                                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-gray-500 transition hover:bg-white hover:text-gray-900 lg:hidden"
                             >
-                                Limpiar filtros
+                                {filtersOpen ? 'Ocultar' : 'Mostrar'}
+                                <ChevronDown size={14} className={`transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
                             </button>
-                        )}
-                    </div>
-                </div>
-            )}
+                        </div>
 
-            {visible.length === 0 ? (
-                <div className="flex flex-col items-center gap-2 rounded-2xl bg-gray-50 py-14 text-center">
-                    <p className="text-sm font-semibold text-gray-700">Ningún resultado con estos filtros</p>
-                    <button
-                        type="button"
-                        onClick={() => setFilters({})}
-                        className="text-xs font-medium text-brand-primary underline underline-offset-4"
-                    >
-                        Limpiar filtros
-                    </button>
-                </div>
-            ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-                    {visible.map(item => (
-                        <CollectionLinkCard
-                            key={item.id ?? item.local_id}
-                            item={item}
-                            schema={normalizedSchema}
-                            displayFields={displayFields}
-                            collection={collection}
-                        />
-                    ))}
-                </div>
-            )}
+                        <div className={`${filtersOpen ? 'mt-6' : 'hidden'} lg:mt-6 lg:block`}>
+                            <CollectionFilters
+                                relationFields={activeRelationFields}
+                                relationData={relationData}
+                                secondLevelFields={activeSecondLevelFields}
+                                secondLevelRelationData={secondLevelRelationData}
+                                booleanFields={activeBooleanFields}
+                                priceFields={visiblePriceFields}
+                                priceLimits={priceLimits}
+                                usedCounts={usedCounts}
+                                filters={filters}
+                                onChange={(fieldName, value) => setFilters(prev => ({ ...prev, [fieldName]: value }))}
+                            />
+                            {hasFiltersApplied && (
+                                <button
+                                    type="button"
+                                    onClick={() => setFilters({})}
+                                    className="mt-6 inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 underline-offset-4 transition hover:text-gray-900 hover:underline"
+                                >
+                                    <X size={12} />
+                                    Limpiar filtros
+                                </button>
+                            )}
+                        </div>
+                    </aside>
+                )}
+
+                {visible.length === 0 ? (
+                    <div className="flex flex-col items-center gap-2 rounded-2xl bg-gray-50 py-14 text-center">
+                        <p className="text-sm font-semibold text-gray-700">Ningún resultado con estos filtros</p>
+                        <button
+                            type="button"
+                            onClick={() => setFilters({})}
+                            className="text-xs font-medium text-brand-primary underline underline-offset-4"
+                        >
+                            Limpiar filtros
+                        </button>
+                    </div>
+                ) : (
+                    <div className={`grid gap-6 sm:grid-cols-2 lg:gap-8 ${showFilters ? '2xl:grid-cols-3' : 'lg:grid-cols-3'}`}>
+                        {visible.map(item => (
+                            <CollectionLinkCard
+                                key={item.id ?? item.local_id}
+                                item={item}
+                                schema={normalizedSchema}
+                                displayFields={displayFields}
+                                collection={collection}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
         </section>
     )
 }

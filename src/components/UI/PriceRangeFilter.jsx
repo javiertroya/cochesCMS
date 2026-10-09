@@ -10,16 +10,18 @@ const formatShort = (value) => (value === 0 ? '0' : `${value / 1000}k`)
 // Pulgares de los dos sliders superpuestos: solo ellos reciben el ratón, no la pista
 const THUMB = cn(
     'pointer-events-none absolute inset-x-0 top-1/2 h-0 w-full -translate-y-1/2 appearance-none bg-transparent',
-    '[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-5 [&::-webkit-slider-thumb]:cursor-grab',
-    '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2',
-    '[&::-webkit-slider-thumb]:border-brand-primary [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow',
-    '[&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-5 [&::-moz-range-thumb]:cursor-grab',
-    '[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-brand-primary',
-    '[&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow',
+    '[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:cursor-grab',
+    '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px]',
+    '[&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-brand-primary',
+    '[&::-webkit-slider-thumb]:shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.18)]',
+    '[&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-110',
+    '[&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:cursor-grab',
+    '[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-white',
+    '[&::-moz-range-thumb]:bg-brand-primary [&::-moz-range-thumb]:shadow-[0_0_0_1px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.18)]',
 )
 
 // Barra de precio por tramos de 5.000 €: value = [min, max] o null (sin filtro)
-const PriceRangeFilter = ({ label = 'Precio', max, value, onChange }) => {
+const PriceRangeFilter = ({ max, value, onChange }) => {
     const limit = Math.max(PRICE_STEP, Math.ceil(max / PRICE_STEP) * PRICE_STEP)
     const [low, high] = value ?? [0, limit]
     const steps = limit / PRICE_STEP
@@ -37,20 +39,17 @@ const PriceRangeFilter = ({ label = 'Precio', max, value, onChange }) => {
                 ? `Desde ${formatEuros(low)}`
                 : `${formatEuros(low)} – ${formatEuros(high)}`
 
-    // Etiquetas de los tramos: todas si caben, si no una de cada varias
-    const labelEvery = Math.ceil(steps / 8)
+    // Etiquetas de los tramos: como mucho 5 para que quepan en la caja lateral
+    const labelEvery = Math.ceil(steps / 4)
 
     return (
         <div className="site-price-filter space-y-3">
-            <div className="flex items-baseline justify-between gap-3">
-                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gray-500">{label}</p>
-                <p className="text-sm font-medium text-gray-900">{summary}</p>
-            </div>
+            <p className="site-price-filter-summary text-sm font-medium text-gray-900">{summary}</p>
 
-            <div className="relative h-6">
-                <div className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-gray-200" />
+            <div className="relative mx-2 h-6">
+                <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-gray-200" />
                 <div
-                    className="site-price-filter-fill absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-brand-primary"
+                    className="site-price-filter-fill absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-brand-primary"
                     style={{ left: `${(low / limit) * 100}%`, right: `${100 - (high / limit) * 100}%` }}
                 />
                 <input
@@ -75,7 +74,7 @@ const PriceRangeFilter = ({ label = 'Precio', max, value, onChange }) => {
                 />
             </div>
 
-            <div className="relative h-4 text-[0.65rem] text-gray-400">
+            <div className="relative mx-2 h-4 text-[0.65rem] text-gray-400">
                 {Array.from({ length: steps + 1 }, (_, index) => index).map(index => {
                     if (index % labelEvery !== 0 && index !== steps) return null
                     const amount = index * PRICE_STEP

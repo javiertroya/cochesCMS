@@ -1,4 +1,5 @@
 import Info from "./Info"
+import PhoneMenu from "./PhoneMenu"
 import Account from "./Account/Account"
 
 const Top = (props) => {
@@ -6,10 +7,16 @@ const Top = (props) => {
     // ............................
     const data = props.info
 
+    // El teléfono se ve también en móvil (abre WhatsApp / llamar); el resto solo desde sm
     const renderInfo = (item) => {
+        if (item.id === 'phone') {
+            return <PhoneMenu key={item.id} phone={item.text} whatsapp={item.whatsapp} />
+        }
         const Icon = item.icon
         return (
-            <Info key={item.id} icon={Icon} text={item.text} />
+            <div key={item.id} className="hidden sm:flex">
+                <Info icon={Icon} text={item.text} />
+            </div>
         )
     }
 
@@ -24,7 +31,7 @@ const Top = (props) => {
             text-white
         ">
             <div className="
-                hidden min-w-0 items-center gap-x-5 sm:flex
+                flex min-w-0 items-center gap-x-5
             ">
                 {
                     data.map(renderInfo)

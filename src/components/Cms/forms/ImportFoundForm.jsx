@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { ImagePlus, X } from 'lucide-react'
 
+import BrandField, { resolveBrand, validateBrand } from './BrandField'
 import { ContactFields, Field, FormField, Honeypot, SubmitRow, SuccessState } from './FormControls'
 import useRequestForm, { CONTACT_INITIAL, validateContact } from './useRequestForm'
 import { submitImportFoundRequest } from '@/services/request_service'
@@ -30,7 +31,7 @@ const SELLER_OPTIONS = [
 
 const INITIAL = {
     ...CONTACT_INITIAL,
-    listing_url: '', brand: '', model: '',
+    listing_url: '', brand: '', brand_other: '', model: '',
     year: '', km: '', listing_price: '', country: '', seller_type: '', comments: '',
 }
 
@@ -44,7 +45,7 @@ const validate = (values) => {
     if (!/^https?:\/\/\S+\.\S+/i.test(values.listing_url.trim())) {
         errors.listing_url = 'Pega el enlace completo del anuncio (empieza por http)'
     }
-    if (!values.brand.trim()) errors.brand = 'Indica la marca'
+    validateBrand(values, errors)
     if (!values.model.trim()) errors.model = 'Indica el modelo'
     const year = toInt(values.year)
     if (values.year && (!year || year < 1990 || year > CURRENT_YEAR + 1)) errors.year = `Año entre 1990 y ${CURRENT_YEAR + 1}`
@@ -129,7 +130,7 @@ const ImportFoundForm = ({ buttonText, successMessage }) => {
                 phone: values.phone.trim(),
                 email: values.email.trim(),
                 listing_url: values.listing_url.trim(),
-                brand: values.brand.trim(),
+                brand: resolveBrand(values),
                 model: values.model.trim(),
                 year: toInt(values.year),
                 km: toInt(values.km),
@@ -172,7 +173,7 @@ const ImportFoundForm = ({ buttonText, successMessage }) => {
                         maxLength={1000}
                         className="sm:col-span-2"
                     />
-                    <Field form={form} name="brand" label="Marca" required placeholder="Ej. Audi" maxLength={80} />
+                    <BrandField form={form} placeholder="Ej. Lancia" />
                     <Field form={form} name="model" label="Modelo" required placeholder="Ej. A4 Avant" maxLength={80} />
                     <Field form={form} name="year" label="Año" inputMode="numeric" placeholder={`Ej. ${CURRENT_YEAR - 2}`} maxLength={4} />
                     <Field form={form} name="km" label="Kilómetros" inputMode="numeric" placeholder="Ej. 35000" maxLength={7} />

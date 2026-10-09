@@ -8,6 +8,7 @@ import { HeaderCarouselProvider } from './context/HeaderCarouselContext'
 import { SiteSettingsProvider } from './context/SiteSettingsContext'
 import { ToastProvider } from './components/UI/coss/toast'
 import PageViewTracker from './components/Analytics/PageViewTracker'
+import ScrollToTop from './components/Layout/ScrollToTop'
 
 import AdminShell from './components/Admin/Layout/AdminShell'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -42,6 +43,7 @@ const App = () => {
             <BrowserRouter>
                 <AuthProvider>
                     <PageViewTracker />
+                    <ScrollToTop />
                     <ToastProvider>
                         <BreadcrumbProvider>
                             <Routes>

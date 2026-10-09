@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Spinner } from '@/components/UI/coss/spinner'
 import { getCollections } from '@/services/collection_service'
-import { getDisplayFieldOptions, PRICE_FIELDS } from '@/utils/collection'
+import { getDisplayFieldOptions, PRICE_FIELDS, STATUS_FIELDS } from '@/utils/collection'
 
 const normalizeSchema = (schema) => {
     if (Array.isArray(schema)) return schema
@@ -49,6 +49,7 @@ const CollectionPickerField = ({ collection, showFilters, enabledFilters, displa
         const options = []
         for (const field of schema) {
             if (field.type === 'boolean') {
+                if (STATUS_FIELDS.includes(field.name)) continue
                 options.push({ key: field.name, label: field.label ?? field.name, type: 'boolean' })
                 continue
             }

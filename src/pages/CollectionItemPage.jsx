@@ -10,6 +10,10 @@ import ImageGallery, { FeaturedBadge } from '@/components/UI/ImageGallery'
 import InterestActions from '@/components/UI/InterestActions'
 import { formatPrice, getPriceField, getTitle, getImageUrls, isFeatured, toImageList, TITLE_FIELDS, IMAGE_FIELDS, PRICE_FIELDS, STATUS_FIELDS } from '@/utils/collection'
 
+// Página padre por defecto en el breadcrumb cuando no se llega desde un listado
+// (enlace directo, WhatsApp, buscador o tarjetas de inicio)
+const DEFAULT_PARENT_PATHS = { coches: '/catalogo' }
+
 // Colecciones cuyas fichas muestran el botón "Me interesa" (WhatsApp)
 const INTEREST_COLLECTIONS = ['coches']
 
@@ -56,7 +60,8 @@ const CollectionItemPage = () => {
     const { collectionSlug, itemId } = useParams()
     const navigate = useNavigate()
     const { state } = useLocation()
-    const fromPath = state?.fromPath ?? null
+    const fromPath = (state?.fromPath && state.fromPath !== '/' ? state.fromPath : null)
+        ?? DEFAULT_PARENT_PATHS[collectionSlug] ?? null
     const { setLabel, clearLabel } = useBreadcrumbContext()
     const { schema, loading, error, load, getItem } = useCollection(collectionSlug)
 

@@ -19,7 +19,7 @@ const Header = () => {
     const { settings } = useSiteSettings() ?? {}
 
     const info = [
-        settings?.header_phone && { id: 'phone', icon: TbPhoneFilled, text: settings.header_phone },
+        settings?.header_phone && { id: 'phone', icon: TbPhoneFilled, text: settings.header_phone, whatsapp: settings.whatsapp_number },
         settings?.header_email && { id: 'email', icon: TbMailFilled, text: settings.header_email },
     ].filter(Boolean)
 
