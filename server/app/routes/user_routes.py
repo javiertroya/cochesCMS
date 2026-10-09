@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi_pagination import Params
 from sqlalchemy.exc import IntegrityError
 
@@ -16,17 +16,46 @@ from app.utils.auth_utils import (
     require_admin,
 )
 
+from app.utils.rate_limit import RateLimiter
+
 # ............................................................................
 router = APIRouter()
+
+# Fuerza bruta en el login: intentos fallidos en 15 minutos
+# · 5 por IP + email (protege cada cuenta sin que un tercero pueda bloquearla desde otra IP)
+# · 20 por IP (frena a quien prueba muchas cuentas)
+_LOGIN_WINDOW = 15 * 60
+_failed_by_account = RateLimiter(max_events=5, window_seconds=_LOGIN_WINDOW)
+_failed_by_ip = RateLimiter(max_events=20, window_seconds=_LOGIN_WINDOW)
+
+
+def _too_many_attempts(seconds: int) -> HTTPException:
+    minutes = max(1, round(seconds / 60))
+    return HTTPException(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        detail=f"Demasiados intentos fallidos. Inténtalo de nuevo en {minutes} min.",
+        headers={"Retry-After": str(seconds)},
+    )
 
 
 # ── Auth ────────────────────────────────────────────────────────────────────
 
 @router.post("/api/auth/login", response_model=AuthResponse)
-def login(credentials: LoginRequest):
+def login(credentials: LoginRequest, request: Request):
+    email = str(credentials.email).lower()
+    ip = request.client.host if request.client else "desconocida"
+    account_key = f"{ip}|{email}"
+
+    blocked_for = max(_failed_by_account.retry_after(account_key), _failed_by_ip.retry_after(ip))
+    if blocked_for:
+        raise _too_many_attempts(blocked_for)
+
     result = UserService.login(str(credentials.email), credentials.password)
     if result is None:
+        _failed_by_account.hit(account_key)
+        _failed_by_ip.hit(ip)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales incorrectas")
+    _failed_by_account.reset(account_key)
     if result == "inactive":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tu cuenta está desactivada. Contacta con un administrador.")
     return {

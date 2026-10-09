@@ -26,16 +26,3 @@ export const updateMediaCategory = (id, data) => patch(`/admin/media/categories/
 
 // ..............................
 export const deleteMediaCategory = (id) => del(`/admin/media/categories/${id}`)
-
-// ..............................
-export default {
-    getAdminMedia,
-    deleteAdminMedia,
-    updateMedia,
-    clearMediaCategory,
-    getMediaReferences,
-    getMediaCategories,
-    createMediaCategory,
-    updateMediaCategory,
-    deleteMediaCategory,
-}

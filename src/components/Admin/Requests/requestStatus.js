@@ -24,10 +24,3 @@ export const getRequestPreview = (request) => {
     const extra = (request.summary ?? []).find((item) => ['max_budget', 'listing_price'].includes(item.key))
     return [vehicle, extra && `${extra.label}: ${extra.value}`].filter(Boolean).join(' · ')
 }
-
-export const formatRequestDate = (value) => {
-    if (!value) return ''
-    return new Intl.DateTimeFormat('es-ES', {
-        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    }).format(new Date(value))
-}

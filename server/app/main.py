@@ -20,7 +20,15 @@ from app.services.storage_service import get_storage, verify_private_signature
 
 # ............................
 # El esquema de la BD se gestiona con Alembic: `alembic upgrade head`
-app = FastAPI(title="Coches CMS API")
+config.check_production_settings()
+
+# En producción no se publica la documentación de la API (/docs, /redoc, /openapi.json)
+app = FastAPI(
+    title="Coches CMS API",
+    docs_url=None if config.IS_PRODUCTION else "/docs",
+    redoc_url=None if config.IS_PRODUCTION else "/redoc",
+    openapi_url=None if config.IS_PRODUCTION else "/openapi.json",
+)
 
 # ............................
 app.add_middleware(

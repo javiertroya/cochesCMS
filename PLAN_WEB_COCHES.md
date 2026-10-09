@@ -126,10 +126,25 @@
 ### Fase 6 — Despliegue en OVH VPS-1
 
 - [ ] `docker-compose.prod.yml`: Caddy (HTTPS + estáticos del frontend) + API + Postgres, con **volúmenes persistentes** para `server/uploads` y `server/private_uploads` (`STORAGE_DRIVER=local`).
-- [ ] Cortafuegos (solo 22/80/443), usuario no root, claves SSH.
-- [ ] Dominio en Cloudflare con proxy.
+- [ ] `server/.env` de producción: `APP_ENV=production` (ya es el valor por defecto de la imagen Docker), `JWT_SECRET_KEY` aleatorio (`python -c "import secrets; print(secrets.token_urlsafe(48))"`), `DB_PASSWORD` propia y `CORS_ORIGINS=https://tudominio.com`. Con valores de ejemplo la API **no arranca** (a propósito).
+- [ ] ⚠️ **IP real del visitante.** Detrás de Cloudflare + Caddy la API debe recibir la IP real; si no, todos los visitantes comparten la IP del proxy y los límites (login, formularios, analítica) bloquean o cuentan a todos juntos. Hacer: Caddy con `trusted_proxies` = rangos de Cloudflare y que reenvíe `CF-Connecting-IP`/`X-Forwarded-For`; uvicorn con `--proxy-headers --forwarded-allow-ips=<IP del contenedor de Caddy>`. Comprobar con un login fallido que el bloqueo es por IP.
+- [ ] Cabeceras de seguridad en Caddy: `Strict-Transport-Security` (HSTS), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` / `frame-ancestors 'none'` y una `Content-Security-Policy` (permitir Google Maps del pie, Google Fonts y `wa.me`).
+- [ ] Cortafuegos (solo 22/80/443), usuario no root, claves SSH (sin contraseña ni root por SSH), `unattended-upgrades` y `fail2ban`.
+- [ ] Dominio en Cloudflare con proxy; el VPS solo acepta 80/443 desde los rangos de Cloudflare (oculta la IP real y frena DDoS).
 - [ ] Backups diarios con retención: `pg_dump` **+ carpetas `uploads` y `private_uploads`**, copiados fuera del VPS (p. ej. Backblaze B2, R2 o almacenamiento de backup del proveedor). Sin esto, si el VPS falla se pierden las fotos.
 - [ ] Script de despliegue.
+
+### Seguridad de la aplicación
+
+- [x] Contraseñas con bcrypt; roles comprobados en el backend; secretos en `.env` fuera de Git.
+- [x] **Login con límite de intentos** (2026-10-09): 5 fallos por IP + email o 20 por IP en 15 min → 429 "Demasiados intentos fallidos". Contadores en memoria (`app/utils/rate_limit.py`, válido con un solo proceso de API).
+- [x] **Modo producción** (`APP_ENV`, 2026-10-09): sin `/docs`, `/redoc` ni `/openapi.json`, y la API se niega a arrancar con `JWT_SECRET_KEY`, `DB_PASSWORD` o `CORS_ORIGINS` de ejemplo/débiles. La imagen Docker es `production` por defecto; el compose de desarrollo fija `development`.
+- [x] Contador de visitas público limitado a 60 por IP cada 10 min (el exceso se descarta).
+- [x] Formularios: campo trampa + 5 envíos / 10 min por IP.
+- [ ] Turnstile en los formularios públicos (ver fase 3).
+- [ ] Aviso legal, política de privacidad y casilla RGPD en los formularios.
+- [ ] Revisar dependencias antes de publicar y cada pocos meses (`npm audit`, `pip list --outdated`).
+- [ ] *Opcional:* verificación en dos pasos para administradores.
 
 ### Opcional futuro
 

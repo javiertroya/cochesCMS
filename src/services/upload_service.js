@@ -9,8 +9,3 @@ export const uploadImage = async (target, file, categoryId = null) => {
     }
     return await upload(`/uploads/${target}`, formData)
 }
-
-// ..............................
-export default {
-    uploadImage,
-}

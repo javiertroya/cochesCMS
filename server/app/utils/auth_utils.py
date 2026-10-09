@@ -153,10 +153,6 @@ def get_optional_current_user(
     return UserService.get_authenticated_user(int(user_id))
 
 
-def require_auth(current_user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
-    return current_user
-
-
 def require_role(*roles: str):
     def dependency(current_user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
         if current_user.get("role") not in roles:

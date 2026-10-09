@@ -18,6 +18,8 @@ import {
 import FilterButton from '@/components/Admin/UI/FilterButton'
 import ChangesDialog from '@/components/Admin/AuditLog/ChangesDialog'
 import { getAdminAuditLogs } from '@/services/admin_audit_service'
+import { getResourceLabel } from '@/components/Admin/AuditLog/auditLabels'
+import { formatDateTime, formatRelativeTime } from '@/utils/format'
 
 const ACTION_OPTIONS = [
     { value: '', label: 'Todas' },
@@ -30,37 +32,6 @@ const ACTION_META = {
     create: { label: 'Crear',    badge: 'success', border: 'border-l-emerald-500' },
     update: { label: 'Editar',   badge: 'info',    border: 'border-l-blue-500'    },
     delete: { label: 'Eliminar', badge: 'error',   border: 'border-l-red-500'     },
-}
-
-const RESOURCE_LABELS = {
-    page:            'Página',
-    cms_page:        'Página',
-    redirect:        'Redirección',
-    collection:      'Colección',
-    collection_item: 'Ítem de colección',
-    user:            'Usuario',
-    media:           'Archivo',
-    request:         'Solicitud',
-}
-
-const relativeTime = (value) => {
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return '—'
-    const diffMs = Date.now() - date.getTime()
-    const diffMinutes = Math.max(1, Math.round(diffMs / 60000))
-    if (diffMinutes < 60) return `Hace ${diffMinutes} min`
-    const diffHours = Math.round(diffMinutes / 60)
-    if (diffHours < 24) return `Hace ${diffHours} h`
-    const diffDays = Math.round(diffHours / 24)
-    return `Hace ${diffDays} d`
-}
-
-const formatDate = (value) => {
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return ''
-    return new Intl.DateTimeFormat('es-ES', {
-        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    }).format(date)
 }
 
 const AdminAuditLog = () => {
@@ -106,7 +77,7 @@ const AdminAuditLog = () => {
         const values = [...new Set(logs.map((log) => log.resource_type).filter(Boolean))]
         return [
             { value: '', label: 'Todos los tipos' },
-            ...values.map((value) => ({ value, label: RESOURCE_LABELS[value] ?? value })),
+            ...values.map((value) => ({ value, label: getResourceLabel(value) })),
         ]
     }, [logs])
 
@@ -213,8 +184,8 @@ const AdminAuditLog = () => {
                                             const changeCount = Object.keys(changes).length
                                             return (
                                                 <TableRow key={log.id} className={`border-l-2 ${meta.border}`}>
-                                                    <TableCell className="px-5 text-xs text-gray-400" title={formatDate(log.created_at)}>
-                                                        {relativeTime(log.created_at)}
+                                                    <TableCell className="px-5 text-xs text-gray-400" title={formatDateTime(log.created_at)}>
+                                                        {formatRelativeTime(log.created_at)}
                                                     </TableCell>
                                                     <TableCell className="text-xs text-gray-500">{log.user_email ?? 'Sistema'}</TableCell>
                                                     <TableCell>
@@ -222,7 +193,7 @@ const AdminAuditLog = () => {
                                                     </TableCell>
                                                     <TableCell>
                                                         <span className="rounded-md bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-500">
-                                                            {RESOURCE_LABELS[log.resource_type] ?? log.resource_type}
+                                                            {getResourceLabel(log.resource_type)}
                                                         </span>
                                                     </TableCell>
                                                     <TableCell className="max-w-56 truncate font-medium text-gray-800">

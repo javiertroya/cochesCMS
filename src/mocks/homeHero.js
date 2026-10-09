@@ -7,5 +7,3 @@ export const DEFAULT_HOME_HERO = {
     secondaryLabel: 'Contactar',
     secondaryUrl: '/contacto',
 }
-
-export default DEFAULT_HOME_HERO

@@ -109,19 +109,17 @@ class CmsPageRepository:
 
     # ..............................
     @staticmethod
-    def _upsert_nav_item(connection, page_id: int, page: CmsPage | CmsPageUpdate):
-        """Create/update/delete the nav_item for a page based on nav_visible."""
-        nav_visible = getattr(page, 'nav_visible', False) or False
-
-        if not nav_visible:
+    def _upsert_nav_item(connection, page_id: int, *, visible: bool, icon: str | None,
+                         order: int | None, parent_slug: str | None):
+        """Crea, actualiza o borra la entrada de menú de una página según `visible`."""
+        if not visible:
             connection.execute(
                 text("DELETE FROM nav_items WHERE page_id = :page_id"),
                 {"page_id": page_id},
             )
             return
 
-        # Resolve parent_id from parent slug
-        parent_slug = getattr(page, 'nav_parent_slug', None) or None
+        # parent_id a partir del slug de la página padre
         parent_id = None
         if parent_slug:
             result = connection.execute(
@@ -136,9 +134,6 @@ class CmsPageRepository:
             if row:
                 parent_id = row["id"]
 
-        nav_order = getattr(page, 'nav_order', 100) or 100
-        nav_icon = getattr(page, 'nav_icon', None) or None
-
         connection.execute(
             text("""
                 INSERT INTO nav_items (page_id, icon, "order", parent_id)
@@ -151,8 +146,8 @@ class CmsPageRepository:
             """),
             {
                 "page_id": page_id,
-                "icon": nav_icon,
-                "order": nav_order,
+                "icon": icon or None,
+                "order": order or 100,
                 "parent_id": parent_id,
             },
         )
@@ -196,7 +191,11 @@ class CmsPageRepository:
             )
             page_id = result.scalar()
             _save_page_components(connection, page_id, page.components)
-            CmsPageRepository._upsert_nav_item(connection, page_id, page)
+            CmsPageRepository._upsert_nav_item(
+                connection, page_id,
+                visible=page.nav_visible, icon=page.nav_icon,
+                order=page.nav_order, parent_slug=page.nav_parent_slug,
+            )
 
         return CmsPageRepository.find_by_id(page_id)
 
@@ -333,14 +332,8 @@ class CmsPageRepository:
             if components_to_save is not None:
                 _save_page_components(connection, page_id, components_to_save)
 
-            # Update nav_items if any nav field was sent
+            # Menú: los campos no enviados conservan su valor actual
             if has_nav_update:
-                # Build a temporary page-like object for the nav upsert helper
-                class _NavProxy:
-                    pass
-                proxy = _NavProxy()
-                current = CmsPageRepository.find_by_id.__func__ if False else None
-                # Read current nav state as defaults
                 existing = connection.execute(
                     text("""
                         SELECT ni.icon, ni."order", p_parent.slug AS parent_slug
@@ -352,12 +345,14 @@ class CmsPageRepository:
                     {"id": page_id},
                 ).mappings().first()
 
-                proxy.nav_visible = nav_fields['nav_visible'] if 'nav_visible' in nav_fields else (existing is not None)
-                proxy.nav_icon = nav_fields['nav_icon'] if 'nav_icon' in nav_fields else (existing['icon'] if existing else None)
-                proxy.nav_order = nav_fields['nav_order'] if 'nav_order' in nav_fields else (existing['order'] if existing else 100)
-                proxy.nav_parent_slug = nav_fields['nav_parent_slug'] if 'nav_parent_slug' in nav_fields else (existing['parent_slug'] if existing else None)
-
-                CmsPageRepository._upsert_nav_item(connection, page_id, proxy)
+                current = existing or {}
+                CmsPageRepository._upsert_nav_item(
+                    connection, page_id,
+                    visible=nav_fields.get('nav_visible', existing is not None),
+                    icon=nav_fields.get('nav_icon', current.get('icon')),
+                    order=nav_fields.get('nav_order', current.get('order', 100)),
+                    parent_slug=nav_fields.get('nav_parent_slug', current.get('parent_slug')),
+                )
 
         return CmsPageRepository.find_by_id(page_id)
 

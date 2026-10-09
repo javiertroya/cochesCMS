@@ -23,7 +23,7 @@ const useBreadcrumbs = () => {
                 if (found) return found
             }
 
-            // Fallback para rutas dinámicas (e.g. /equipamiento/123)
+            // Rutas dinámicas bajo una página del menú (p. ej. /catalogo/123)
             if (path.startsWith(item.route + '/')) {
                 const dynamicLabel = dynamicLabels[path]
                 return dynamicLabel

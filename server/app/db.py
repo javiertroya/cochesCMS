@@ -3,7 +3,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 
 # ............................
 ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
@@ -22,7 +21,6 @@ if not all([DB_NAME, DB_USER, DB_PASSWORD]):
 DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # ............................
 def check_database_connection() -> bool:

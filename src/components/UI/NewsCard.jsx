@@ -9,21 +9,8 @@ import { Link } from "react-router-dom"
 import { Badge } from "@/components/UI/coss/badge"
 import { Button } from "@/components/UI/coss/button"
 import { cn } from "@/lib/utils"
+import { formatDate } from '@/utils/format'
 
-const formatDate = (date) => {
-    if (!date) return null
-
-    const parsedDate = typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)
-        ? new Date(`${date}T00:00:00`)
-        : new Date(date)
-    if (Number.isNaN(parsedDate.getTime())) return date
-
-    return new Intl.DateTimeFormat("es-ES", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-    }).format(parsedDate)
-}
 
 const NewsImage = ({ article, featured }) => {
     const image = article.imageUrl ?? article.image ?? article.photo

@@ -1,9 +1,7 @@
 import { cn } from '@/lib/utils'
+import { formatPrice } from '@/utils/format'
 
-export const PRICE_STEP = 5000
-
-const formatEuros = (value) =>
-    new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value)
+const PRICE_STEP = 5000
 
 const formatShort = (value) => (value === 0 ? '0' : `${value / 1000}k`)
 
@@ -34,10 +32,10 @@ const PriceRangeFilter = ({ max, value, onChange }) => {
     const summary = !value
         ? 'Todos los precios'
         : low === 0
-            ? `Hasta ${formatEuros(high)}`
+            ? `Hasta ${formatPrice(high)}`
             : high >= limit
-                ? `Desde ${formatEuros(low)}`
-                : `${formatEuros(low)} – ${formatEuros(high)}`
+                ? `Desde ${formatPrice(low)}`
+                : `${formatPrice(low)} – ${formatPrice(high)}`
 
     // Etiquetas de los tramos: como mucho 5 para que quepan en la caja lateral
     const labelEvery = Math.ceil(steps / 4)

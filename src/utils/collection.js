@@ -1,6 +1,18 @@
+// fields_schema de una colección: llega como array o (en datos antiguos) como texto JSON
+export const parseSchema = (raw) => {
+    if (Array.isArray(raw)) return raw
+    if (!raw) return []
+    try {
+        const parsed = JSON.parse(raw)
+        return Array.isArray(parsed) ? parsed : []
+    } catch {
+        return []
+    }
+}
+
 export const TITLE_FIELDS = ['name', 'nombre', 'title', 'titulo', 'titular']
 export const IMAGE_FIELDS = ['photo', 'image', 'imageUrl', 'foto', 'imagen', 'photo_url']
-export const URL_FIELDS = ['url', 'URL']
+const URL_FIELDS = ['url', 'URL']
 
 export const getTitle = (item, schema = []) => {
     const byName = TITLE_FIELDS.find(n => item[n] != null && item[n] !== '')
@@ -28,6 +40,9 @@ export const getImageUrls = (item, schema = []) => {
 
 export const getImageUrl = (item, schema = []) => getImageUrls(item, schema)[0] ?? null
 
+// Los elementos con activo = false no se muestran en la web
+export const isPublished = (item) => item?.activo !== false
+
 export const isFeatured = (item) => item?.destacado === true
 
 // Destacados primero, manteniendo el orden original dentro de cada grupo
@@ -46,12 +61,6 @@ export const getDisplayFieldOptions = (schema = []) =>
 export const PRICE_FIELDS = ['precio', 'price']
 
 export const getPriceField = (item) => PRICE_FIELDS.find(name => item?.[name] != null && item[name] !== '')
-
-export const formatPrice = (value) => {
-    const number = Number(value)
-    if (!Number.isFinite(number)) return String(value)
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(number)
-}
 
 // Enlace de WhatsApp con mensaje prellenado. Los números españoles sin prefijo reciben el 34
 export const getWhatsAppUrl = (phone, message) => {

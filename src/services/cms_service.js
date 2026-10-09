@@ -4,14 +4,6 @@ export const getCmsPage = async (slug) => {
     return await get(`/cms/pages/${slug}`)
 }
 
-export const getCmsPageOptional = async (slug) => {
-    try {
-        return await getCmsPage(slug)
-    } catch {
-        return null
-    }
-}
-
 export const getCmsNavPages = async () => {
     return await get('/cms/nav-pages')
 }
@@ -34,15 +26,4 @@ export const deleteCmsPage = async (pageId) => {
 
 export const getCmsComponentTypes = async () => {
     return await get('/admin/cms/component-types')
-}
-
-export default {
-    getCmsPage,
-    getCmsPageOptional,
-    getCmsNavPages,
-    getAdminCmsPages,
-    createCmsPage,
-    updateCmsPage,
-    deleteCmsPage,
-    getCmsComponentTypes,
 }

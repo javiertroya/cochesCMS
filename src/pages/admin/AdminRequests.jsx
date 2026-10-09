@@ -8,12 +8,13 @@ import AdminErrorState from '@/components/Admin/UI/AdminErrorState'
 import FilterButton from '@/components/Admin/UI/FilterButton'
 import RequestStatusBadge from '@/components/Admin/Requests/RequestStatusBadge'
 import RequestDetailDialog from '@/components/Admin/Requests/RequestDetailDialog'
-import { REQUEST_STATUSES, REQUEST_TYPE_OPTIONS, formatRequestDate, getRequestPreview } from '@/components/Admin/Requests/requestStatus'
+import { REQUEST_STATUSES, REQUEST_TYPE_OPTIONS, getRequestPreview } from '@/components/Admin/Requests/requestStatus'
 import {
     deleteAdminRequest,
     getAdminRequests,
     updateAdminRequestStatus,
 } from '@/services/request_service'
+import { formatDateTime } from '@/utils/format'
 
 const AdminRequests = () => {
     const [requests, setRequests] = useState([])
@@ -207,7 +208,7 @@ const AdminRequests = () => {
                                             </div>
                                             <div className="flex items-center justify-between gap-3 lg:contents">
                                                 <RequestStatusBadge status={request.status} />
-                                                <span className="text-xs text-gray-400 lg:text-right">{formatRequestDate(request.created_at)}</span>
+                                                <span className="text-xs text-gray-400 lg:text-right">{formatDateTime(request.created_at)}</span>
                                                 <ChevronRight className="hidden h-4 w-4 text-gray-300 lg:block" />
                                             </div>
                                         </button>

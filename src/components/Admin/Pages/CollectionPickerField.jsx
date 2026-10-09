@@ -2,31 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Spinner } from '@/components/UI/coss/spinner'
 import { getCollections } from '@/services/collection_service'
-import { getDisplayFieldOptions, PRICE_FIELDS, STATUS_FIELDS } from '@/utils/collection'
+import { getFilterableFields } from '@/components/Cms/collection/useCollectionFilters'
+import { getDisplayFieldOptions, parseSchema } from '@/utils/collection'
 
-const normalizeSchema = (schema) => {
-    if (Array.isArray(schema)) return schema
-    if (!schema) return []
-    try { return JSON.parse(schema) } catch { return [] }
-}
-
+// Filtros que se ofrecen por colección (el resto de colecciones: todos los disponibles)
 const PREFERRED_FILTER_KEYS = {
-    ordenadores: ['sala_id'],
-    tecnicas: ['group_id'],
-    cursos: ['tecnica_id__group_id', 'activo'],
-    'cursos-iniciacion': ['grupo_id'],
-    equipamientos: ['tecnicas__group_id'],
-    equipamiento: ['tecnicas__group_id'],
     coches: ['marca', 'precio'],
-}
-
-const FILTER_LABELS = {
-    sala_id: 'Sala',
-    group_id: 'Grupo',
-    grupo_id: 'Grupo',
-    tecnica_id__group_id: 'Grupo',
-    tecnicas__group_id: 'Grupo',
-    activo: 'Estado',
 }
 
 const CollectionPickerField = ({ collection, showFilters, enabledFilters, displayFields, onChange }) => {
@@ -45,45 +26,18 @@ const CollectionPickerField = ({ collection, showFilters, enabledFilters, displa
 
     const filterOptions = useMemo(() => {
         if (!selectedCollection) return []
-        const schema = normalizeSchema(selectedCollection.fields_schema)
-        const options = []
-        for (const field of schema) {
-            if (field.type === 'boolean') {
-                if (STATUS_FIELDS.includes(field.name)) continue
-                options.push({ key: field.name, label: field.label ?? field.name, type: 'boolean' })
-                continue
-            }
-            if (field.type === 'number' && PRICE_FIELDS.includes(field.name)) {
-                options.push({ key: field.name, label: `${field.label ?? field.name} (barra de rangos)`, type: 'price-range' })
-                continue
-            }
-            if (field.type !== 'relation' && field.type !== 'relation-multi') continue
-            options.push({ key: field.name, label: field.label ?? field.name, type: field.type })
-            const relatedCollection = collections.find(c => c.slug === field.collection)
-            const relatedSchema = normalizeSchema(relatedCollection?.fields_schema)
-            for (const subField of relatedSchema) {
-                if (subField.type !== 'relation' && subField.type !== 'relation-multi') continue
-                options.push({
-                    key: `${field.name}__${subField.name}`,
-                    label: subField.label ?? subField.name,
-                    type: subField.type,
-                })
-            }
-        }
         const preferredKeys = PREFERRED_FILTER_KEYS[selectedCollection.slug]
-        const selectedOptions = preferredKeys
-            ? options.filter(option => preferredKeys.includes(option.key))
-            : options
-
-        return selectedOptions.map(option => ({
-            ...option,
-            label: FILTER_LABELS[option.key] ?? option.label,
-        }))
-    }, [selectedCollection, collections])
+        return getFilterableFields(parseSchema(selectedCollection.fields_schema))
+            .filter(field => !preferredKeys || preferredKeys.includes(field.name))
+            .map(field => ({
+                key: field.name,
+                label: field.isPriceRange ? `${field.label ?? field.name} (barra de rangos)` : field.label ?? field.name,
+            }))
+    }, [selectedCollection])
 
     const displayFieldOptions = useMemo(() => {
         if (!selectedCollection) return []
-        return getDisplayFieldOptions(normalizeSchema(selectedCollection.fields_schema))
+        return getDisplayFieldOptions(parseSchema(selectedCollection.fields_schema))
     }, [selectedCollection])
 
     const handleCollectionChange = (slug) => {

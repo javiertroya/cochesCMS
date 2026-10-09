@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 import { toastManager } from '@/components/UI/coss/toast'
 import { useSiteSettings } from '@/context/SiteSettingsContext'
@@ -85,11 +85,14 @@ const useStylesForm = () => {
         primaryColor, secondaryColor, accentColor,
         bgColor, textColor, headingColor, linkColor,
         headingFont, bodyFont, borderRadius,
-    ] = watch([
-        'primary_color', 'secondary_color', 'accent_color',
-        'background_color', 'text_color', 'heading_color', 'link_color',
-        'font_family_heading', 'font_family_body', 'border_radius',
-    ])
+    ] = useWatch({
+        control,
+        name: [
+            'primary_color', 'secondary_color', 'accent_color',
+            'background_color', 'text_color', 'heading_color', 'link_color',
+            'font_family_heading', 'font_family_body', 'border_radius',
+        ],
+    })
 
     const preview = {
         primaryColor, secondaryColor, accentColor,

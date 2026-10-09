@@ -1,26 +1,13 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Loader } from "react-loaders"
+import { Spinner } from '@/components/UI/coss/spinner'
 import { FaArrowLeft } from "react-icons/fa6"
 import { ChevronLeft, ChevronRight, Newspaper, User } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/UI/coss/avatar"
 import { Button } from "@/components/UI/coss/button"
+import { formatDate } from '@/utils/format'
 
-const formatDate = (date) => {
-    if (!date) return null
-
-    const parsedDate = typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)
-        ? new Date(`${date}T00:00:00`)
-        : new Date(date)
-    if (Number.isNaN(parsedDate.getTime())) return date
-
-    return new Intl.DateTimeFormat("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-    }).format(parsedDate)
-}
 
 const getNewsImages = (noticia) => {
     if (!noticia) return []
@@ -123,7 +110,7 @@ const ArticleNavigationArrow = ({ noticia, direction }) => {
 }
 
 const NoticiaDetail = ({ noticia, loading, error, previousNoticia, nextNoticia }) => {
-    const publishedAt = formatDate(noticia?.fecha_publicacion)
+    const publishedAt = formatDate(noticia?.fecha_publicacion, { month: 'long' })
     const authorName = noticia?.autor_name ?? noticia?.autor?.name ?? "Redacción"
     const authorInitial = authorName.charAt(0).toUpperCase()
     const images = getNewsImages(noticia)
@@ -131,7 +118,7 @@ const NoticiaDetail = ({ noticia, loading, error, previousNoticia, nextNoticia }
     return (
         <section className="my-8">
             {loading && (
-                <Loader type="ball-grid-pulse" className="flex items-center justify-center" />
+                <Spinner className="mx-auto size-7 text-gray-300" />
             )}
 
             {error && (

@@ -22,8 +22,8 @@ const RedirectInfoDialog = ({ open, onClose }) => (
                 <section className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                     <p className="font-semibold text-gray-900">Ejemplo sencillo</p>
                     <p className="mt-1">
-                        Si alguien entra en <span className="font-mono text-gray-900">/servicios</span>, pero ahora esa
-                        página está en <span className="font-mono text-gray-900">/equipamiento</span>, la redirección
+                        Si alguien entra en <span className="font-mono text-gray-900">/stock</span>, pero ahora esa
+                        página está en <span className="font-mono text-gray-900">/catalogo</span>, la redirección
                         lo lleva automáticamente a la dirección correcta.
                     </p>
                 </section>

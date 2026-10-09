@@ -32,7 +32,7 @@ const loadProFonts = () => {
     document.head.appendChild(link)
 }
 
-export const applyStyles = (settings) => {
+const applyStyles = (settings) => {
     const root = document.documentElement
 
     if (settings.site_theme === 'pro') loadProFonts()

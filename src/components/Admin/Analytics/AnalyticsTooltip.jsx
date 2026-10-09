@@ -1,4 +1,4 @@
-const fmt = (v) => new Intl.NumberFormat('es-ES').format(v ?? 0)
+import { formatNumber } from '@/utils/format'
 
 const AnalyticsTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null
@@ -7,7 +7,7 @@ const AnalyticsTooltip = ({ active, payload, label }) => {
             <p className="mb-1 font-medium text-[#374151]">{label}</p>
             {payload.map((p) => (
                 <p key={p.dataKey} className="font-semibold" style={{ color: p.color }}>
-                    {fmt(p.value)} {p.name}
+                    {formatNumber(p.value)} {p.name}
                 </p>
             ))}
         </div>

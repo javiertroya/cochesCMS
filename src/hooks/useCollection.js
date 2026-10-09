@@ -1,11 +1,6 @@
 import { useCallback, useState } from 'react'
 import { getPublicCollectionBySlug } from '@/services/collection_service'
-
-const parseSchema = (raw) => {
-    if (Array.isArray(raw)) return raw
-    if (!raw) return []
-    try { return JSON.parse(raw) } catch { return [] }
-}
+import { parseSchema } from '@/utils/collection'
 
 const useCollection = (slug) => {
     const [items, setItems] = useState([])

@@ -4,7 +4,7 @@ import {
     Users, BarChart2, Activity, SlidersHorizontal, Palette,
 } from 'lucide-react'
 
-export const NAV_GROUPS = [
+const NAV_GROUPS = [
     {
         label: 'Contenido',
         items: [
@@ -43,9 +43,3 @@ export const getNavGroupsForRole = (role) => NAV_GROUPS
         items: group.items.filter((item) => !item.adminOnly || role === 'admin'),
     }))
     .filter((group) => group.items.length > 0)
-
-export const ADMIN_SECTIONS = NAV_GROUPS.flatMap((g) =>
-    g.items.map((i) => ({ id: i.id, path: i.path, name: i.label, icon: i.icon })),
-)
-
-export default ADMIN_SECTIONS

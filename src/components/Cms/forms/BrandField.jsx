@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 
 import { Field } from './FormControls'
 import { getPublicCollectionBySlug } from '@/services/collection_service'
-import { getTitle } from '@/utils/collection'
+import { getTitle, isPublished, parseSchema } from '@/utils/collection'
 
-export const BRAND_OTHER = '__otro__'
+const BRAND_OTHER = '__otro__'
 
 // Marca final a enviar: la elegida en la lista o la escrita a mano en "Otra"
 export const resolveBrand = (values) =>
@@ -25,9 +25,9 @@ const BrandField = ({ form, placeholder }) => {
         let mounted = true
         getPublicCollectionBySlug('marcas')
             .then(data => {
-                const schema = data?.collection?.fields_schema ?? []
+                const schema = parseSchema(data?.collection?.fields_schema)
                 const names = (data?.items ?? [])
-                    .filter(item => item.activo !== false)
+                    .filter(isPublished)
                     .map(item => getTitle(item, schema))
                     .sort((a, b) => a.localeCompare(b, 'es'))
                 if (mounted) setBrands(names)

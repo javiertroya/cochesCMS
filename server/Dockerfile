@@ -1,8 +1,11 @@
 FROM python:3.12-slim
 
+# APP_ENV=production por defecto: si se olvida la variable, la API queda protegida
+# (el docker-compose de desarrollo la cambia a development)
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    APP_ENV=production
 
 WORKDIR /app
 

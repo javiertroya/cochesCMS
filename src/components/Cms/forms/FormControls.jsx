@@ -2,7 +2,7 @@ import { CheckCircle2, Loader2, Send } from 'lucide-react'
 
 // Controles compartidos por los formularios públicos (Formulario completo, Importación…)
 
-export const inputClass = (hasError) => `
+const inputClass = (hasError) => `
     block w-full rounded-xl border bg-white px-4 py-3 text-base text-gray-900 shadow-sm
     outline-none transition placeholder:text-gray-400
     focus:ring-4

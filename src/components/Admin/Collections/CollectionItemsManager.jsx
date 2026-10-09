@@ -12,30 +12,20 @@ import {
     createCollectionItem,
     deleteCollectionItem,
     getCollectionItems,
-    getPublicCollectionBySlug,
     updateCollectionItem,
 } from '@/services/collection_service'
 import { getAdminMedia } from '@/services/media_service'
 
 import AdminCollectionFilters from './AdminCollectionFilters'
-import { CellValue, CourseCellValue } from './CollectionItemCells'
+import { CellValue } from './CollectionItemCells'
 import ItemModal from './CollectionItemFields'
 import ExpandedValueDialog from './ExpandedValueDialog'
 import {
-    getAdminFilterCollections,
     getAdminFilterDefinitions,
     getCollectionUploadTarget,
     itemMatchesAdminFilters,
     normalizeNewsImages,
 } from './collectionItemsUtils'
-
-const COURSE_DISPLAY_FIELDS = [
-    { name: 'nombre', label: 'Nombre' },
-    { name: 'descripcion', label: 'Descripción' },
-    { name: 'grupo', label: 'Grupo' },
-    { name: 'duracion', label: 'Duración' },
-    { name: 'activo', label: 'Activo' },
-]
 
 const CollectionItemsManager = ({ collection }) => {
     const [items, setItems] = useState([])
@@ -45,14 +35,11 @@ const CollectionItemsManager = ({ collection }) => {
     const [showCreate, setShowCreate] = useState(false)
     const [expandedValue, setExpandedValue] = useState(null)
     const [mediaItems, setMediaItems] = useState(null)
-    const [courseRelationData, setCourseRelationData] = useState({ tecnicas: [], grupos: [] })
-    const [filterRelationData, setFilterRelationData] = useState({})
     const [adminFilters, setAdminFilters] = useState({})
     const { confirm, confirmProps } = useConfirm()
 
     const fields = useMemo(() => collection.fields_schema ?? [], [collection.fields_schema])
     const uploadTarget = getCollectionUploadTarget(collection)
-    const isCourseCollection = collection.slug === 'cursos' || collection.slug === 'cursos-iniciacion'
     const filterDefinitions = useMemo(() => getAdminFilterDefinitions(collection.slug), [collection.slug])
     const hasImageFields = useMemo(() => fields.some(field => field.type === 'image'), [fields])
     const knownMediaUrls = useMemo(
@@ -66,55 +53,14 @@ const CollectionItemsManager = ({ collection }) => {
     }, [hasImageFields])
 
     useEffect(() => {
-        if (!isCourseCollection) return
-
-        Promise.all([
-            getPublicCollectionBySlug('tecnicas').catch(() => ({ items: [] })),
-            getPublicCollectionBySlug('grupos').catch(() => ({ items: [] })),
-        ]).then(([tecnicas, grupos]) => {
-            setCourseRelationData({
-                tecnicas: tecnicas?.items ?? [],
-                grupos: grupos?.items ?? [],
-            })
-        })
-    }, [isCourseCollection])
-
-    useEffect(() => {
         setAdminFilters({})
     }, [collection.id])
 
-    useEffect(() => {
-        const slugs = getAdminFilterCollections(collection.slug)
-        if (slugs.length === 0) {
-            setFilterRelationData({})
-            return
-        }
-
-        let mounted = true
-        Promise.all(
-            slugs.map(slug =>
-                getPublicCollectionBySlug(slug).catch(() => ({ items: [] }))
-            )
-        ).then(results => {
-            if (!mounted) return
-            const nextData = {}
-            slugs.forEach((slug, index) => {
-                nextData[slug] = results[index]?.items ?? []
-            })
-            setFilterRelationData(nextData)
-        })
-
-        return () => { mounted = false }
-    }, [collection.slug])
-
-    const relationData = useMemo(
-        () => ({ ...filterRelationData, ...courseRelationData }),
-        [filterRelationData, courseRelationData]
-    )
-    const displayFields = isCourseCollection ? COURSE_DISPLAY_FIELDS : fields
+    // Columnas de la tabla: una por campo (o "#" si no hay campos) + Acciones
+    const columnCount = Math.max(fields.length, 1) + 1
     const visibleItems = useMemo(
-        () => items.filter(item => itemMatchesAdminFilters(item, collection.slug, adminFilters, relationData)),
-        [items, collection.slug, adminFilters, relationData]
+        () => items.filter(item => itemMatchesAdminFilters(item, adminFilters)),
+        [items, adminFilters]
     )
 
     const load = useCallback(async () => {
@@ -215,7 +161,6 @@ const CollectionItemsManager = ({ collection }) => {
 
             <AdminCollectionFilters
                 definitions={filterDefinitions}
-                relationData={relationData}
                 filters={adminFilters}
                 onChange={(key, value) => setAdminFilters(prev => ({ ...prev, [key]: value }))}
                 onReset={() => setAdminFilters({})}
@@ -225,18 +170,18 @@ const CollectionItemsManager = ({ collection }) => {
                 <table
                     className="w-full table-fixed text-left text-sm"
                     // Ancho mínimo por columna: en móvil la tabla se desplaza en horizontal en vez de aplastarse
-                    style={{ minWidth: `${Math.max(displayFields.length, 1) * 9 + 5}rem` }}
+                    style={{ minWidth: `${Math.max(fields.length, 1) * 9 + 5}rem` }}
                 >
                     <colgroup>
-                        {displayFields.map(field => (
+                        {fields.map(field => (
                             <col key={field.name} />
                         ))}
-                        {displayFields.length === 0 && <col />}
+                        {fields.length === 0 && <col />}
                         <col className="w-20" style={{ width: '5rem' }} />
                     </colgroup>
                     <thead className="border-b border-[#e5e7eb] bg-[#f6f7fb] text-xs uppercase tracking-wide text-[#6b7280]">
                         <tr>
-                            {displayFields.map(field => (
+                            {fields.map(field => (
                                 <th key={field.name} className="px-2 py-3 font-semibold">
                                     {field.label}
                                     {['relation', 'relation-multi'].includes(field.type) && (
@@ -244,21 +189,21 @@ const CollectionItemsManager = ({ collection }) => {
                                     )}
                                 </th>
                             ))}
-                            {displayFields.length === 0 && <th className="px-2 py-3 font-semibold">#</th>}
+                            {fields.length === 0 && <th className="px-2 py-3 font-semibold">#</th>}
                             <th className="px-2 py-3 text-right font-semibold">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading && (
                             <tr>
-                                <td colSpan={Math.max(displayFields.length, 1) + 1}>
+                                <td colSpan={columnCount}>
                                     <AdminLoadingState label="Cargando elementos…" />
                                 </td>
                             </tr>
                         )}
                         {!loading && error && (
                             <tr>
-                                <td colSpan={Math.max(displayFields.length, 1) + 1}>
+                                <td colSpan={columnCount}>
                                     <AdminErrorState
                                         title="Error al cargar elementos"
                                         description="No se han podido cargar los elementos de esta colección."
@@ -269,7 +214,7 @@ const CollectionItemsManager = ({ collection }) => {
                         )}
                         {!loading && !error && items.length === 0 && (
                             <tr>
-                                <td colSpan={Math.max(displayFields.length, 1) + 1}>
+                                <td colSpan={columnCount}>
                                     <div className="sticky left-0 flex w-[calc(100vw-2.25rem)] flex-col items-center gap-2 py-14 text-center sm:w-[calc(100vw-3.25rem)] lg:w-auto">
                                         <Database className="size-7 text-gray-200" />
                                         <p className="text-sm font-medium text-gray-400">Sin elementos</p>
@@ -280,37 +225,28 @@ const CollectionItemsManager = ({ collection }) => {
                         )}
                         {!loading && !error && items.length > 0 && visibleItems.length === 0 && (
                             <tr>
-                                <td colSpan={Math.max(displayFields.length, 1) + 1} className="py-8 text-center text-[#6b7280]">
+                                <td colSpan={columnCount} className="py-8 text-center text-[#6b7280]">
                                     No hay elementos que coincidan con los filtros.
                                 </td>
                             </tr>
                         )}
                         {visibleItems.map(item => (
                             <tr key={item.id} className="border-b border-[#eef0f4] last:border-0 hover:bg-[#fafafa]">
-                                {displayFields.map(field => (
+                                {fields.map(field => (
                                     <td key={field.name} className="min-w-0 px-2 py-3 align-top text-[#374151]">
-                                        {isCourseCollection ? (
-                                            <CourseCellValue
-                                                column={field}
-                                                item={item}
-                                                relationData={courseRelationData}
-                                                onExpand={setExpandedValue}
-                                            />
-                                        ) : (
-                                            <CellValue
-                                                field={field}
-                                                value={collection.slug === 'noticias' && field.name === 'photo'
-                                                    ? item.data?.images ?? item.data?.photo
-                                                    : item.data?.[field.name]}
-                                                knownMediaUrls={knownMediaUrls}
-                                                onExpand={setExpandedValue}
-                                                onToggle={() => handleToggle(item, field)}
-                                                collectionSlug={collection.slug}
-                                            />
-                                        )}
+                                        <CellValue
+                                            field={field}
+                                            value={collection.slug === 'noticias' && field.name === 'photo'
+                                                ? item.data?.images ?? item.data?.photo
+                                                : item.data?.[field.name]}
+                                            knownMediaUrls={knownMediaUrls}
+                                            onExpand={setExpandedValue}
+                                            onToggle={() => handleToggle(item, field)}
+                                            collectionSlug={collection.slug}
+                                        />
                                     </td>
                                 ))}
-                                {displayFields.length === 0 && (
+                                {fields.length === 0 && (
                                     <td className="px-2 py-3 font-mono text-xs text-[#9ca3af]">#{item.id}</td>
                                 )}
                                 <td className="px-2 py-3 align-top">

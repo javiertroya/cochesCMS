@@ -24,5 +24,3 @@ export function HeaderCarouselProvider({ children }) {
 
 // ............................................................................
 export const useHeaderCarousel = () => useContext(HeaderCarouselContext)
-
-export default HeaderCarouselContext

@@ -2,31 +2,13 @@ import { ArrowRight, Activity } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { cn } from '@/lib/utils'
+import { getResourceLabel } from '@/components/Admin/AuditLog/auditLabels'
+import { formatRelativeTime } from '@/utils/format'
 
 const ACTION_CONFIG = {
     create: { label: 'creó',    dot: 'bg-emerald-500', text: 'text-emerald-600' },
     update: { label: 'editó',   dot: 'bg-blue-500',    text: 'text-blue-600' },
     delete: { label: 'eliminó', dot: 'bg-red-500',     text: 'text-red-600' },
-}
-
-const RESOURCE_LABELS = {
-    page:            'Página',
-    cms_page:        'Página',
-    redirect:        'Redirección',
-    collection:      'Colección',
-    collection_item: 'Ítem de colección',
-    user:            'Usuario',
-    media:           'Archivo',
-}
-
-function relativeTime(dateStr) {
-    const date = new Date(dateStr)
-    const now  = new Date()
-    const diff = Math.floor((now - date) / 1000)
-    if (diff < 60)   return 'hace un momento'
-    if (diff < 3600) return `hace ${Math.floor(diff / 60)} min`
-    if (diff < 86400) return `hace ${Math.floor(diff / 3600)} h`
-    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
 }
 
 const DashboardActivityFeed = ({ data, loading, className }) => {
@@ -87,12 +69,12 @@ const DashboardActivityFeed = ({ data, loading, className }) => {
                                             <span className={`text-xs font-medium ${cfg.text}`}>{cfg.label}</span>
                                             {' '}
                                             <span className="text-xs text-gray-400">
-                                                {RESOURCE_LABELS[log.resource_type] ?? log.resource_type}
+                                                {getResourceLabel(log.resource_type)}
                                             </span>
                                             {' '}
                                             <span className="font-medium">{log.resource_label}</span>
                                         </p>
-                                        <p className="mt-0.5 text-xs text-gray-400">{relativeTime(log.created_at)}</p>
+                                        <p className="mt-0.5 text-xs text-gray-400">{formatRelativeTime(log.created_at)}</p>
                                     </div>
                                 </div>
                             )

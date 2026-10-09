@@ -8,14 +8,8 @@ import {
     DialogPopup,
     DialogTitle,
 } from '@/components/UI/coss/dialog'
+import { formatDateTime } from '@/utils/format'
 
-const formatDate = (value) => {
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return ''
-    return new Intl.DateTimeFormat('es-ES', {
-        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-    }).format(date)
-}
 
 const ChangesDialog = ({ log, onClose }) => (
     <Dialog open={!!log} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -23,7 +17,7 @@ const ChangesDialog = ({ log, onClose }) => (
             <DialogHeader>
                 <DialogTitle>Cambios registrados</DialogTitle>
                 <DialogDescription>
-                    {log?.resource_label} · {log ? formatDate(log.created_at) : ''}
+                    {log?.resource_label} · {log ? formatDateTime(log.created_at) : ''}
                 </DialogDescription>
             </DialogHeader>
             <DialogPanel className="space-y-3">

@@ -15,8 +15,3 @@ export const trackPageView = (payload) => {
         keepalive: true,
     }).catch(() => {})
 }
-
-export default {
-    getAdminAnalyticsOverview,
-    trackPageView,
-}

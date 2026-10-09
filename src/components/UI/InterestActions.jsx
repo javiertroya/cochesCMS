@@ -2,7 +2,8 @@ import { FaPhone, FaWhatsapp } from 'react-icons/fa6'
 
 import { useSiteSettings } from '@/context/SiteSettingsContext'
 import { cn } from '@/lib/utils'
-import { formatPrice, getPriceField, getWhatsAppUrl } from '@/utils/collection'
+import { getPriceField, getWhatsAppUrl } from '@/utils/collection'
+import { formatNumber, formatPrice } from '@/utils/format'
 
 const YEAR_FIELDS = ['ano', 'año', 'year']
 const KM_FIELDS = ['kilometros', 'km', 'kilómetros']
@@ -17,7 +18,7 @@ const buildMessage = (item, title) => {
 
     const details = [
         year,
-        km != null && Number.isFinite(Number(km)) && `${new Intl.NumberFormat('es-ES').format(Number(km))} km`,
+        km != null && Number.isFinite(Number(km)) && `${formatNumber(km)} km`,
         priceField && formatPrice(item[priceField]),
     ].filter(Boolean)
 

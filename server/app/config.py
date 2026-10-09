@@ -13,6 +13,12 @@ def _list(value: str | None) -> list[str]:
 
 
 # ............................
+# development · production. La imagen Docker es "production" por defecto; el
+# docker-compose de desarrollo fija "development".
+APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
+IS_PRODUCTION = APP_ENV == "production"
+
+# ............................
 CORS_ORIGINS = _list(os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"))
 
 # ............................
@@ -36,3 +42,31 @@ R2_ENDPOINT_URL = os.getenv("R2_ENDPOINT_URL", "")
 # Límites de subida (MB)
 MAX_IMAGE_MB = int(os.getenv("MAX_IMAGE_MB", "25"))
 MAX_VIDEO_MB = int(os.getenv("MAX_VIDEO_MB", "200"))
+
+
+# ............................
+# Valores de ejemplo que nunca deben llegar a producción
+_PLACEHOLDER_SECRETS = {"cambia_esto_por_un_valor_largo_y_aleatorio", "coches_dev_password"}
+
+
+def check_production_settings() -> None:
+    """En producción, la API no arranca con secretos débiles o de ejemplo."""
+    if not IS_PRODUCTION:
+        return
+
+    problems = []
+    jwt_secret = os.getenv("JWT_SECRET_KEY") or ""
+    if len(jwt_secret) < 32 or jwt_secret in _PLACEHOLDER_SECRETS:
+        problems.append("JWT_SECRET_KEY debe ser un valor aleatorio de al menos 32 caracteres")
+
+    db_password = os.getenv("DB_PASSWORD") or ""
+    if len(db_password) < 12 or db_password in _PLACEHOLDER_SECRETS:
+        problems.append("DB_PASSWORD debe ser una contraseña propia de al menos 12 caracteres")
+
+    if any("localhost" in origin or "127.0.0.1" in origin for origin in CORS_ORIGINS):
+        problems.append("CORS_ORIGINS no debe incluir localhost (pon el dominio real, p. ej. https://tudominio.com)")
+
+    if problems:
+        raise RuntimeError(
+            "Configuración insegura para producción (APP_ENV=production):\n- " + "\n- ".join(problems)
+        )

@@ -117,7 +117,7 @@ const NewCollectionModal = ({ onClose, onSave }) => {
                                 </label>
                                 <input type="text" value={name}
                                     onChange={e => { setName(e.target.value); setError('') }}
-                                    placeholder="Ej: Proyectos, Talleres, Patrocinadores…"
+                                    placeholder="Ej: Ofertas, Testimonios, Servicios…"
                                     className="h-10 w-full rounded-lg border border-[#d1d5db] bg-white px-3 text-sm focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/30"
                                     autoFocus
                                 />

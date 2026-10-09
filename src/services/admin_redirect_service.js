@@ -15,10 +15,3 @@ export const updateAdminRedirect = async (redirectId, redirect) => {
 export const deleteAdminRedirect = async (redirectId) => {
     return await del(`/admin/redirects/${redirectId}`)
 }
-
-export default {
-    getAdminRedirects,
-    createAdminRedirect,
-    updateAdminRedirect,
-    deleteAdminRedirect,
-}

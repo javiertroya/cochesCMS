@@ -11,9 +11,3 @@ export const loginUser = async (credentials) => {
 export const getCurrentUser = async () => {
     return await get('/auth/me')
 }
-
-// ..............................
-export default {
-    loginUser,
-    getCurrentUser,
-}

@@ -2,13 +2,14 @@ import { useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { FaArrowLeft } from 'react-icons/fa6'
 import { Database } from 'lucide-react'
-import { Loader } from 'react-loaders'
+import { Spinner } from '@/components/UI/coss/spinner'
 
 import { useBreadcrumbContext } from '@/context/BreadcrumbContext'
 import useCollection from '@/hooks/useCollection'
 import ImageGallery, { FeaturedBadge } from '@/components/UI/ImageGallery'
 import InterestActions from '@/components/UI/InterestActions'
-import { formatPrice, getPriceField, getTitle, getImageUrls, isFeatured, toImageList, TITLE_FIELDS, IMAGE_FIELDS, PRICE_FIELDS, STATUS_FIELDS } from '@/utils/collection'
+import { formatPrice } from '@/utils/format'
+import { getPriceField, getTitle, getImageUrls, isFeatured, isPublished, toImageList, TITLE_FIELDS, IMAGE_FIELDS, PRICE_FIELDS, STATUS_FIELDS } from '@/utils/collection'
 
 // Página padre por defecto en el breadcrumb cuando no se llega desde un listado
 // (enlace directo, WhatsApp, buscador o tarjetas de inicio)
@@ -69,7 +70,7 @@ const CollectionItemPage = () => {
 
     const found = loading ? null : getItem(itemId)
     // Los elementos inactivos no se muestran en la web
-    const item = found?.activo === false ? null : found
+    const item = found && isPublished(found) ? found : null
     const title = item ? getTitle(item, schema) : ''
 
     useEffect(() => {
@@ -86,7 +87,7 @@ const CollectionItemPage = () => {
     if (loading) {
         return (
             <section className="py-8">
-                <Loader type="ball-grid-pulse" className="flex items-center justify-center" />
+                <Spinner className="mx-auto size-7 text-gray-300" />
             </section>
         )
     }

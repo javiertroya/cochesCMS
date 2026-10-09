@@ -13,11 +13,11 @@ export const COMPONENT_GROUPS = [
     },
     {
         title: 'Datos y formularios',
-        types: ['latest_news', 'collection_links', 'info_items', 'form', 'full_form', 'import_request'],
+        types: ['latest_news', 'collection_links', 'form', 'full_form', 'import_request'],
     },
 ]
 
-export const COMPONENT_SCHEMAS = {
+const COMPONENT_SCHEMAS = {
     // ── Contenido ──────────────────────────────────────────────────────────
     hero: [
         { name: 'title',      label: 'Título',            type: 'text' },
@@ -330,9 +330,6 @@ export const COMPONENT_SCHEMAS = {
         { name: 'subtitle',   label: 'Subtítulo (opcional)', type: 'textarea' },
         { name: 'collection', label: 'Colección', type: 'collection-picker' },
     ],
-    info_items: [
-        { name: 'collection', label: 'Colección', type: 'collection-picker' },
-    ],
     form: [
         {
             name: 'form', label: 'Formulario', type: 'select',
@@ -371,5 +368,3 @@ export const COMPONENT_SCHEMAS = {
 }
 
 export const getComponentSchema = (type) => COMPONENT_SCHEMAS[type] ?? []
-
-export default COMPONENT_SCHEMAS

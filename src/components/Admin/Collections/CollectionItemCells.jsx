@@ -1,11 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { AlertTriangle, Star } from 'lucide-react'
 
-import {
-    formatExpandedValue,
-    getCourseGroup,
-    getCourseName,
-} from './collectionItemsUtils'
+import { formatExpandedValue } from './collectionItemsUtils'
+import { resolveMediaUrl } from '@/utils/media'
 
 const ExpandValueButton = ({ label, value, onExpand }) => (
     <button
@@ -64,19 +61,9 @@ const TruncatedText = ({
     )
 }
 
-const TextCell = ({ value, label, onExpand }) => (
-    <TruncatedText value={value} label={label} onExpand={onExpand} />
-)
-
-const shouldAlwaysCompact = (collectionSlug, fieldName) => {
-    if ((collectionSlug === 'equipamientos' || collectionSlug === 'equipamiento') && fieldName === 'descripcion') {
-        return true
-    }
-    if (collectionSlug === 'noticias' && ['titular', 'cuerpo'].includes(fieldName)) {
-        return true
-    }
-    return false
-}
+// Campos largos que siempre se recortan con "Ver más", aunque quepan
+const shouldAlwaysCompact = (collectionSlug, fieldName) =>
+    collectionSlug === 'noticias' && ['titular', 'cuerpo'].includes(fieldName)
 
 const BooleanToggle = ({ field, value, onToggle }) => {
     const checked = value ?? field.default ?? false
@@ -136,7 +123,7 @@ export const CellValue = ({ field, value, knownMediaUrls, onExpand, onToggle, co
         return (
             <div className="flex items-center gap-2">
                 <img
-                    src={firstImage}
+                    src={resolveMediaUrl(firstImage)}
                     alt=""
                     className="h-9 w-9 rounded-lg object-cover border border-[#e5e7eb]"
                     onError={e => { e.target.replaceWith(Object.assign(document.createElement('span'), { className: 'text-xs text-[#9ca3af]', textContent: '—' })) }}
@@ -183,60 +170,12 @@ export const CellValue = ({ field, value, knownMediaUrls, onExpand, onToggle, co
         )
     }
 
-    const alwaysCompact = shouldAlwaysCompact(collectionSlug, field.name)
-
-    if (alwaysCompact || field.type === 'textarea' || (typeof value === 'string' && value.length > 60)) {
-        const str = String(value ?? '—')
-        return (
-            <TruncatedText
-                value={str}
-                label={field.label ?? field.name}
-                onExpand={onExpand}
-                forceExpand={alwaysCompact}
-            />
-        )
-    }
-
-    const str = String(value ?? '—')
     return (
         <TruncatedText
-            value={str}
+            value={String(value ?? '—')}
             label={field.label ?? field.name}
             onExpand={onExpand}
-            className="text-[#374151]"
+            forceExpand={shouldAlwaysCompact(collectionSlug, field.name)}
         />
     )
-}
-
-export const CourseCellValue = ({ column, item, relationData, onExpand }) => {
-    const data = item?.data ?? {}
-
-    if (column.name === 'nombre') {
-        return <TextCell value={getCourseName(item)} label={column.label} onExpand={onExpand} />
-    }
-
-    if (column.name === 'descripcion') {
-        return (
-            <TruncatedText
-                value={data.descripcion}
-                label={column.label}
-                onExpand={onExpand}
-                forceExpand
-            />
-        )
-    }
-
-    if (column.name === 'grupo') {
-        return <TextCell value={getCourseGroup(item, relationData)} label={column.label} onExpand={onExpand} />
-    }
-
-    if (column.name === 'duracion') {
-        return <TextCell value={data.duracion ? `${data.duracion} h` : ''} />
-    }
-
-    if (column.name === 'activo') {
-        return data.activo ? 'Sí' : 'No'
-    }
-
-    return <TextCell value={data[column.name]} label={column.label} onExpand={onExpand} />
 }

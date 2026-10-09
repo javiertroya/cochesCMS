@@ -7,7 +7,8 @@ import NewsCard from '@/components/UI/NewsCard'
 import NewsGridSkeleton from '@/components/Content/Home/NewsGridSkeleton'
 import SectionHeading from '@/components/Cms/SectionHeading'
 import useCollection from '@/hooks/useCollection'
-import { getImageUrl, getTitle, isFeatured } from '@/utils/collection'
+import { getImageUrl, getTitle, isFeatured, isPublished } from '@/utils/collection'
+import { parseDate } from '@/utils/format'
 
 const DESCRIPTION_FIELDS = ['description', 'descripcion', 'entrada', 'cuerpo', 'content', 'contenido', 'subtitle', 'subtitulo']
 const DATE_FIELDS = ['publishedAt', 'date', 'fecha_publicacion', 'created_at']
@@ -17,16 +18,7 @@ const getFirstFieldValue = (item, fieldNames) => {
     return fieldName ? item[fieldName] : null
 }
 
-const getTimestamp = (item) => {
-    const value = getFirstFieldValue(item, DATE_FIELDS)
-    if (!value) return 0
-
-    const parsed = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
-        ? new Date(`${value}T00:00:00`)
-        : new Date(value)
-
-    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime()
-}
+const getTimestamp = (item) => parseDate(getFirstFieldValue(item, DATE_FIELDS))?.getTime() ?? 0
 
 const getItemPath = (collection, item) => {
     const id = item.id ?? item.local_id
@@ -54,7 +46,7 @@ const CmsLatestNews = ({ collection = 'noticias', title, subtitle, limit = 3, li
     const normalizedLimit = String(limit)
     // Destacados primero; después (y dentro de cada grupo) lo más reciente. Los inactivos no se muestran
     const sortedItems = items
-        .filter(item => item.activo !== false)
+        .filter(isPublished)
         .sort((a, b) => {
             const featuredDiff = Number(isFeatured(b)) - Number(isFeatured(a))
             if (featuredDiff !== 0) return featuredDiff

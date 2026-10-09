@@ -10,7 +10,8 @@ import {
     DialogPopup,
     DialogTitle,
 } from '@/components/UI/coss/dialog'
-import { REQUEST_STATUSES, formatRequestDate } from './requestStatus'
+import { REQUEST_STATUSES } from './requestStatus'
+import { formatDateTime } from '@/utils/format'
 
 // Campos de texto largo: se muestran a todo el ancho y respetando saltos de línea
 const LONG_FIELDS = new Set(['message', 'comments', 'must_have'])
@@ -26,7 +27,7 @@ const RequestDetailDialog = ({ request, saving, onClose, onStatusChange, onDelet
                     <DialogDescription>
                         {request?.type_label ?? request?.type}
                         {' · '}
-                        {formatRequestDate(request?.created_at)}
+                        {formatDateTime(request?.created_at)}
                         {request?.source_page && <> · desde <span className="font-mono">{request.source_page}</span></>}
                     </DialogDescription>
                 </DialogHeader>

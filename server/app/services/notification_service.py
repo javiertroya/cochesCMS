@@ -1,7 +1,6 @@
 import logging
 import os
 import smtplib
-from datetime import date, datetime, time
 from email.message import EmailMessage
 
 
@@ -20,21 +19,6 @@ class NotificationService:
     SMTP_TIMEOUT = int(os.getenv("SMTP_TIMEOUT", "10"))
     MAIL_FROM = os.getenv("MAIL_FROM", "no-reply@example.com")
     MAIL_TO = os.getenv("ADMIN_NOTIFICATION_EMAIL", "admin@example.com")
-
-    @staticmethod
-    def _stringify(value):
-        if value is None:
-            return "-"
-        if isinstance(value, (datetime, date, time)):
-            return value.isoformat()
-        return str(value)
-
-    @staticmethod
-    def format_fields(fields: list[tuple[str, object]]) -> str:
-        return "\n".join(
-            f"{label}: {NotificationService._stringify(value)}"
-            for label, value in fields
-        )
 
     @staticmethod
     def send_email(

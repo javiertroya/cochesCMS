@@ -19,11 +19,3 @@ export const updateAdminUser = (userId, data) => put(`/admin/users/${userId}`, d
 
 // ..............................
 export const deleteAdminUser = (userId) => del(`/admin/users/${userId}`)
-
-// ..............................
-export default {
-    getAdminUsers,
-    createAdminUser,
-    updateAdminUser,
-    deleteAdminUser,
-}

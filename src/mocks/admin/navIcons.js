@@ -47,5 +47,3 @@ export const NAV_ICON_OPTIONS = [
     { value: 'key', label: 'Llave / Importación' },
     { value: 'plane', label: 'Avión / Importación' },
 ]
-
-export default NAV_ICON_MAP

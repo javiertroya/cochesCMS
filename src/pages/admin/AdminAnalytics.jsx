@@ -12,6 +12,9 @@ import AnalyticsCard from '@/components/Admin/Analytics/AnalyticsCard'
 import AnalyticsTooltip from '@/components/Admin/Analytics/AnalyticsTooltip'
 import AnalyticsRangeSelector from '@/components/Admin/Analytics/AnalyticsRangeSelector'
 import { getAdminAnalyticsOverview } from '@/services/analytics_service'
+import { formatDate, formatNumber } from '@/utils/format'
+
+const formatDayMonth = (value) => formatDate(value, { year: undefined })
 
 const PRIMARY   = '#1A4D8D'
 const TEAL      = '#0d9488'
@@ -28,12 +31,6 @@ const EMPTY_ANALYTICS = {
     trafficSources: [],
 }
 
-const fmt = (v) => new Intl.NumberFormat('es-ES').format(v ?? 0)
-
-const fmtDate = (v) => {
-    if (!v) return ''
-    return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(new Date(v))
-}
 
 const computeWeekdays = (timeline) => {
     const DAYS   = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
@@ -87,7 +84,7 @@ const AdminAnalytics = () => {
         {
             id:          'today',
             label:       'Pageviews hoy',
-            value:       loading ? '—' : fmt(analytics.summary?.todayPageviews),
+            value:       loading ? '—' : formatNumber(analytics.summary?.todayPageviews),
             icon:        Eye,
             colorBg:     'bg-indigo-50',
             colorText:   'text-indigo-600',
@@ -97,7 +94,7 @@ const AdminAnalytics = () => {
         {
             id:          'pageviews',
             label:       `Pageviews (${rangeLabel})`,
-            value:       loading ? '—' : fmt(analytics.summary?.pageviews),
+            value:       loading ? '—' : formatNumber(analytics.summary?.pageviews),
             icon:        TrendingUp,
             colorBg:     'bg-violet-50',
             colorText:   'text-violet-600',
@@ -107,7 +104,7 @@ const AdminAnalytics = () => {
         {
             id:          'visitors',
             label:       'Visitantes únicos',
-            value:       loading ? '—' : fmt(analytics.summary?.visitors),
+            value:       loading ? '—' : formatNumber(analytics.summary?.visitors),
             icon:        Users,
             colorBg:     'bg-teal-50',
             colorText:   'text-teal-600',
@@ -117,7 +114,7 @@ const AdminAnalytics = () => {
         {
             id:          'pages',
             label:       'Páginas distintas',
-            value:       loading ? '—' : fmt(analytics.topPages?.length ?? 0),
+            value:       loading ? '—' : formatNumber(analytics.topPages?.length ?? 0),
             sub:         hasTopPages ? `Más vista: ${analytics.topPages[0]?.path}` : undefined,
             icon:        Globe,
             colorBg:     'bg-sky-50',
@@ -182,7 +179,7 @@ const AdminAnalytics = () => {
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                                             <XAxis
                                                 dataKey="date"
-                                                tickFormatter={fmtDate}
+                                                tickFormatter={formatDayMonth}
                                                 tick={{ fontSize: 11, fill: '#94a3b8' }}
                                                 tickLine={false}
                                                 axisLine={false}
@@ -193,7 +190,7 @@ const AdminAnalytics = () => {
                                                 tickLine={false}
                                                 axisLine={false}
                                             />
-                                            <Tooltip content={<AnalyticsTooltip />} labelFormatter={fmtDate} />
+                                            <Tooltip content={<AnalyticsTooltip />} labelFormatter={formatDayMonth} />
                                             <Area type="monotone" dataKey="pageviews" name="Pageviews" stroke={PRIMARY} strokeWidth={2} fill="url(#gPv)" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                                             <Area type="monotone" dataKey="visitors" name="Visitantes" stroke={TEAL} strokeWidth={2} fill="url(#gVis)" dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                                         </AreaChart>
@@ -215,7 +212,7 @@ const AdminAnalytics = () => {
                                                         <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                                                     ))}
                                                 </Pie>
-                                                <Tooltip formatter={(v) => [fmt(v), 'Visitantes']} contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} />
+                                                <Tooltip formatter={(v) => [formatNumber(v), 'Visitantes']} contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} />
                                             </PieChart>
                                         </ResponsiveContainer>
                                         <div className="w-full space-y-1.5">
@@ -225,7 +222,7 @@ const AdminAnalytics = () => {
                                                         <span className="inline-block h-2 w-2 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
                                                         <span className="truncate max-w-30">{s.source}</span>
                                                     </span>
-                                                    <span className="font-medium">{fmt(s.visitors)}</span>
+                                                    <span className="font-medium">{formatNumber(s.visitors)}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -246,7 +243,7 @@ const AdminAnalytics = () => {
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                                             <XAxis dataKey="dia" tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
                                             <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false} />
-                                            <Tooltip formatter={(v) => [fmt(v), 'Visitas']} contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} />
+                                            <Tooltip formatter={(v) => [formatNumber(v), 'Visitas']} contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} />
                                             <Bar dataKey="visitas" fill={PRIMARY} radius={[4, 4, 0, 0]} maxBarSize={40} />
                                         </BarChart>
                                     </ResponsiveContainer>
@@ -273,7 +270,7 @@ const AdminAnalytics = () => {
                                                             <Globe className="h-3 w-3 shrink-0" />
                                                             <span className="truncate font-mono">{p.path}</span>
                                                         </span>
-                                                        <span className="ml-2 shrink-0 font-semibold text-[#374151]">{fmt(p.pageviews)}</span>
+                                                        <span className="ml-2 shrink-0 font-semibold text-[#374151]">{formatNumber(p.pageviews)}</span>
                                                     </div>
                                                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#f1f5f9]">
                                                         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: PIE_COLORS[i % PIE_COLORS.length] }} />

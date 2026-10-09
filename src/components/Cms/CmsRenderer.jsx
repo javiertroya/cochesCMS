@@ -9,7 +9,6 @@ import CmsCarousel from './CmsCarousel'
 import CmsContentIndex from './CmsContentIndex'
 import CmsCta from './CmsCta'
 import CmsCollectionLinks from './CmsCollectionLinks'
-import CmsInfoItems from './CmsInfoItems'
 import CmsDivider from './CmsDivider'
 import CmsFeatureList from './CmsFeatureList'
 import CmsForm from './CmsForm'
@@ -38,8 +37,7 @@ const renderers = {
     carousel:         CmsCarousel,
     content_index:    CmsContentIndex,
     cta:              CmsCta,
-    collection_links:      CmsCollectionLinks,
-    info_items:            CmsInfoItems,
+    collection_links: CmsCollectionLinks,
     divider:          CmsDivider,
     feature_list:     CmsFeatureList,
     form:             CmsForm,

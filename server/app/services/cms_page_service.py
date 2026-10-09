@@ -150,15 +150,6 @@ COMPONENT_TYPES: list[dict[str, Any]] = [
         },
     },
     {
-        "type": "info_items",
-        "name": "Items de informacion",
-        "description": "Grid de tarjetas de coleccion dinamica con panel de detalle al hacer clic.",
-        "default_props": {
-            "collection": "",
-            "displayFields": [],
-        },
-    },
-    {
         "type": "form",
         "name": "Formulario",
         "description": "Formulario existente del proyecto.",
@@ -338,9 +329,6 @@ COMPONENT_TYPES: list[dict[str, Any]] = [
     },
 ]
 
-HIDDEN_COMPONENT_TYPES = {"data_collection"}
-
-
 def normalize_slug(slug: str) -> str:
     cleaned = slug.strip().lower()
     cleaned = re.sub(r"[^a-z0-9\-\/]+", "-", cleaned)
@@ -364,8 +352,6 @@ class CmsPageService:
                 )
                 db_types = []
                 for row in result.mappings().all():
-                    if row["name"] in HIDDEN_COMPONENT_TYPES:
-                        continue
                     # Find matching default_props from in-memory list
                     match = next((ct for ct in COMPONENT_TYPES if ct["type"] == row["name"]), None)
                     db_types.append({
@@ -379,7 +365,7 @@ class CmsPageService:
                     db_types.extend(
                         ct
                         for ct in COMPONENT_TYPES
-                        if ct["type"] not in db_type_names and ct["type"] not in HIDDEN_COMPONENT_TYPES
+                        if ct["type"] not in db_type_names
                     )
                     return db_types
         except Exception:

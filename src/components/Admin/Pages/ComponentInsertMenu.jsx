@@ -29,7 +29,6 @@ const COMPONENT_DESCRIPTIONS = {
 
     latest_news:           'Feed automático de las últimas noticias',
     collection_links:      'Tarjetas de colección dinámica con enlace al hacer clic',
-    info_items:            'Tarjetas de colección dinámica con panel de detalle al hacer clic',
     form:                  'Formulario de contacto o consulta general',
 }
 

@@ -19,6 +19,17 @@ def _slugify(text_: str) -> str:
     return re.sub(r"[\s_-]+", "-", text_)
 
 
+def _find_media_or_404(conn, media_id: int, columns: str):
+    """Fila de `media` con las columnas pedidas (texto fijo del código, nunca del usuario)."""
+    row = conn.execute(
+        text(f"SELECT {columns} FROM media WHERE id = :id"),
+        {"id": media_id},
+    ).mappings().first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Archivo no encontrado")
+    return row
+
+
 # ............................................................................
 class CategoryCreate(BaseModel):
     name: str
@@ -155,13 +166,7 @@ async def update_media(
         raise HTTPException(status_code=400, detail="Nada que actualizar")
 
     with engine.begin() as conn:
-        existing = conn.execute(
-            text("SELECT id, original_name FROM media WHERE id = :id"),
-            {"id": media_id},
-        ).mappings().first()
-
-        if not existing:
-            raise HTTPException(status_code=404, detail="Archivo no encontrado")
+        existing = _find_media_or_404(conn, media_id, "id, original_name")
 
         updates = []
         params: dict = {"id": media_id}
@@ -201,13 +206,7 @@ async def clear_media_category(
 ):
     """Set category_id to NULL for a media item."""
     with engine.begin() as conn:
-        existing = conn.execute(
-            text("SELECT id, original_name FROM media WHERE id = :id"),
-            {"id": media_id},
-        ).mappings().first()
-
-        if not existing:
-            raise HTTPException(status_code=404, detail="Archivo no encontrado")
+        existing = _find_media_or_404(conn, media_id, "id, original_name")
 
         row = conn.execute(
             text("UPDATE media SET category_id = NULL WHERE id = :id RETURNING id, original_name, category_id"),
@@ -231,13 +230,7 @@ async def get_media_references(
     _current_user: dict = Depends(require_staff),
 ):
     with engine.connect() as conn:
-        media_row = conn.execute(
-            text("SELECT url FROM media WHERE id = :id"),
-            {"id": media_id},
-        ).mappings().first()
-
-        if not media_row:
-            raise HTTPException(status_code=404, detail="Archivo no encontrado")
+        media_row = _find_media_or_404(conn, media_id, "url")
 
         url = media_row["url"]
         pattern = f"%{url}%"

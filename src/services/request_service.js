@@ -39,12 +39,3 @@ export const updateAdminRequestStatus = async (requestId, status) => {
 export const deleteAdminRequest = async (requestId) => {
     return await del(`/admin/requests/${requestId}`)
 }
-
-export default {
-    submitFullFormRequest,
-    submitImportSearchRequest,
-    submitImportFoundRequest,
-    getAdminRequests,
-    updateAdminRequestStatus,
-    deleteAdminRequest,
-}

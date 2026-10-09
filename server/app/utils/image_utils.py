@@ -15,9 +15,8 @@ try:
     from pillow_heif import register_heif_opener
 
     register_heif_opener()
-    HEIF_SUPPORTED = True
-except ImportError:  # pragma: no cover
-    HEIF_SUPPORTED = False
+except ImportError:  # pragma: no cover - sin pillow-heif no se aceptan fotos HEIC
+    pass
 
 # Protección frente a imágenes "bomba" (≈ 80 megapíxeles)
 Image.MAX_IMAGE_PIXELS = 80_000_000

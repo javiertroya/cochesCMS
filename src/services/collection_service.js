@@ -2,9 +2,7 @@ import { del, get, post, put } from './api'
 
 // ── Colecciones (admin) ──────────────────────────────────────────────────────
 export const getCollections = () => get('/admin/collections')
-export const getCollection = (id) => get(`/admin/collections/${id}`)
 export const createCollection = (data) => post('/admin/collections', data)
-export const updateCollection = (id, data) => put(`/admin/collections/${id}`, data)
 export const deleteCollection = (id) => del(`/admin/collections/${id}`)
 
 // ── Items (admin) ─────────────────────────────────────────────────────────────

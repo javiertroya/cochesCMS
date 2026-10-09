@@ -13,7 +13,7 @@ export const getAccessToken = () => {
 };
 
 // ..............................
-export const getRefreshToken = () => {
+const getRefreshToken = () => {
     return localStorage.getItem(REFRESH_TOKEN_KEY) || sessionStorage.getItem(REFRESH_TOKEN_KEY);
 };
 
@@ -209,6 +209,3 @@ export const upload = async (endpoint, formData) => {
         return handleError(error);
     }
 };
-
-// ..............................
-export default { get, post, put, patch, del, upload };

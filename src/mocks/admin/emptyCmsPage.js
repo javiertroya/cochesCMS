@@ -1,4 +1,4 @@
-export const EMPTY_CMS_PAGE = {
+const EMPTY_CMS_PAGE = {
     title: 'Nueva pagina',
     slug: 'nueva-pagina',
     requires_auth: false,

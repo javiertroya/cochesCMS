@@ -11,7 +11,3 @@ export const getAdminAuditLogs = async ({ action, resourceType, search, limit = 
     const query = params.toString()
     return await get(`/admin/audit-logs${query ? `?${query}` : ''}`)
 }
-
-export default {
-    getAdminAuditLogs,
-}

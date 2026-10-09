@@ -119,17 +119,6 @@ class CollectionRepository:
 
     # ..............................
     @staticmethod
-    def find_item_by_global_id(global_id: int) -> dict | None:
-        with engine.connect() as connection:
-            result = connection.execute(
-                text("SELECT global_id, collection_id, id, data FROM collection_items WHERE global_id = :global_id"),
-                {"global_id": global_id},
-            )
-            row = result.mappings().first()
-            return dict(row) if row else None
-
-    # ..............................
-    @staticmethod
     def find_item(collection_id: int, item_id: int) -> dict | None:
         with engine.connect() as connection:
             result = connection.execute(
