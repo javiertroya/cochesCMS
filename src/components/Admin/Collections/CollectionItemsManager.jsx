@@ -167,6 +167,18 @@ const CollectionItemsManager = ({ collection }) => {
         }
     }
 
+    const handleToggle = async (item, field) => {
+        const current = item.data?.[field.name] ?? field.default ?? false
+        const data = { ...item.data, [field.name]: !current }
+        setItems(prev => prev.map(currentItem => currentItem.id === item.id ? { ...currentItem, data } : currentItem))
+        try {
+            await updateCollectionItem(collection.id, item.id, data)
+        } catch {
+            setItems(prev => prev.map(currentItem => currentItem.id === item.id ? item : currentItem))
+            toastManager.add({ title: 'Error', description: 'No se pudo actualizar el elemento.', type: 'error' })
+        }
+    }
+
     const handleDelete = async (item) => {
         const ok = await confirm('¿Eliminar este elemento? Esta acción no se puede deshacer.')
         if (!ok) return
@@ -292,6 +304,7 @@ const CollectionItemsManager = ({ collection }) => {
                                                     : item.data?.[field.name]}
                                                 knownMediaUrls={knownMediaUrls}
                                                 onExpand={setExpandedValue}
+                                                onToggle={() => handleToggle(item, field)}
                                                 collectionSlug={collection.slug}
                                             />
                                         )}

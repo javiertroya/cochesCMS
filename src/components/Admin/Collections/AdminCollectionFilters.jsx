@@ -19,8 +19,8 @@ const AdminCollectionFilters = ({ definitions, relationData, filters, onChange, 
                                 className="h-9 rounded-lg border border-[#e5e7eb] bg-white px-3 text-sm text-[#374151] shadow-sm focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/20"
                             >
                                 <option value="">Todos</option>
-                                <option value="active">Activos</option>
-                                <option value="inactive">No activos</option>
+                                <option value="active">{definition.trueLabel ?? 'Activos'}</option>
+                                <option value="inactive">{definition.falseLabel ?? 'No activos'}</option>
                             </select>
                         </label>
                     )

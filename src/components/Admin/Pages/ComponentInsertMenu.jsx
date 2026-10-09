@@ -23,7 +23,7 @@ const COMPONENT_DESCRIPTIONS = {
     carousel:         'Carrusel deslizable de imágenes o contenido',
     gallery:          'Galería fotográfica en cuadrícula',
     stats_row:        'Fila de estadísticas o cifras destacadas',
-    service_stack:    'Servicios apilados con iconos y descripción',
+    service_stack:    'Servicios numerados con panel que cambia al hacer scroll',
     youtube_embed:    'Vídeo de YouTube embebido en la página',
     map_embed:        'Mapa interactivo de Google Maps',
 

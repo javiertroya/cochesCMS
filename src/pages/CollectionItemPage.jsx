@@ -6,17 +6,22 @@ import { Loader } from 'react-loaders'
 
 import { useBreadcrumbContext } from '@/context/BreadcrumbContext'
 import useCollection from '@/hooks/useCollection'
-import { getTitle, getImageUrl, TITLE_FIELDS, IMAGE_FIELDS } from '@/utils/collection'
+import ImageGallery, { FeaturedBadge } from '@/components/UI/ImageGallery'
+import InterestActions from '@/components/UI/InterestActions'
+import { formatPrice, getPriceField, getTitle, getImageUrls, isFeatured, toImageList, TITLE_FIELDS, IMAGE_FIELDS, PRICE_FIELDS, STATUS_FIELDS } from '@/utils/collection'
+
+// Colecciones cuyas fichas muestran el botón "Me interesa" (WhatsApp)
+const INTEREST_COLLECTIONS = ['coches']
 
 const FieldValue = ({ field, value }) => {
     if (value == null || value === '') return null
 
     if (field.type === 'image') {
         return (
-            <img
-                src={value}
+            <ImageGallery
+                images={toImageList(value)}
                 alt={field.label ?? field.name}
-                className="max-h-64 w-auto rounded-lg object-contain"
+                imageClassName="max-h-64 w-auto rounded-lg object-contain"
             />
         )
     }
@@ -57,7 +62,9 @@ const CollectionItemPage = () => {
 
     useEffect(() => { load() }, [load])
 
-    const item = loading ? null : getItem(itemId)
+    const found = loading ? null : getItem(itemId)
+    // Los elementos inactivos no se muestran en la web
+    const item = found?.activo === false ? null : found
     const title = item ? getTitle(item, schema) : ''
 
     useEffect(() => {
@@ -87,19 +94,27 @@ const CollectionItemPage = () => {
         return <p className="py-8 text-slate-600">Elemento no encontrado.</p>
     }
 
-    const imageUrl = getImageUrl(item, schema)
+    const images = getImageUrls(item, schema)
+    const priceField = getPriceField(item)
+    const showInterest = INTEREST_COLLECTIONS.includes(collectionSlug)
 
     const detailFields = schema.filter(f => {
         const val = item[f.name]
         if (val == null || val === '') return false
+        if (Array.isArray(val) && val.length === 0) return false
         if (TITLE_FIELDS.includes(f.name)) return false
         if (IMAGE_FIELDS.includes(f.name)) return false
+        if (PRICE_FIELDS.includes(f.name)) return false
+        if (STATUS_FIELDS.includes(f.name)) return false
+        // La imagen principal ya se muestra en la galería de la izquierda
+        if (f.type === 'image' && toImageList(val)[0] === images[0]) return false
         return true
     })
 
     // Chips: campos array o de relación — se muestran como etiquetas bajo el título
     const chipFields = detailFields.filter(f => {
         const val = item[f.name]
+        if (f.type === 'image') return false
         return Array.isArray(val) || f.type === 'relation' || f.type === 'relation-multi'
     })
 
@@ -116,11 +131,13 @@ const CollectionItemPage = () => {
         <section className="my-8">
             <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_1fr]">
                 <div className="flex max-h-[70vh] justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                    {imageUrl ? (
-                        <img
-                            src={imageUrl}
+                    {images.length > 0 ? (
+                        <ImageGallery
+                            images={images}
                             alt={title}
-                            className="h-auto max-h-[calc(70vh-2rem)] max-w-full object-contain"
+                            imageClassName={images.length > 1
+                                ? 'h-auto max-h-[calc(70vh-7rem)] max-w-full object-contain'
+                                : 'h-auto max-h-[calc(70vh-2rem)] max-w-full object-contain'}
                         />
                     ) : (
                         <div className="flex h-full w-full items-center justify-center min-h-48">
@@ -140,6 +157,7 @@ const CollectionItemPage = () => {
                     </button>
 
                     <div>
+                        {isFeatured(item) && <FeaturedBadge className="mb-3" />}
                         <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
 
                         {chipFields.length > 0 && (
@@ -159,6 +177,17 @@ const CollectionItemPage = () => {
                             </div>
                         )}
                     </div>
+
+                    {(priceField || showInterest) && (
+                        <div className="space-y-5">
+                            {priceField && (
+                                <p className="site-item-price text-3xl font-semibold tracking-tight text-gray-900">
+                                    {formatPrice(item[priceField])}
+                                </p>
+                            )}
+                            {showInterest && <InterestActions item={item} title={title} />}
+                        </div>
+                    )}
 
                     <hr className="border-slate-200" />
 

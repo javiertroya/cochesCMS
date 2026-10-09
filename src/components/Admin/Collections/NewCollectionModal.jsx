@@ -33,6 +33,7 @@ const EmptyField = () => ({
     label: '',
     type: 'text',
     required: false,
+    multiple: false,
     collection: '',
     locked: false,
 })
@@ -75,11 +76,12 @@ const NewCollectionModal = ({ onClose, onSave }) => {
         const slug = toSlug(trimmed)
         const fields_schema = fields
             .filter(f => f.name && f.label)
-            .map(({ name, label, type, required, collection }) => ({
+            .map(({ name, label, type, required, multiple, collection }) => ({
                 name,
                 label,
                 type,
                 ...(required ? { required: true } : {}),
+                ...(type === 'image' && multiple ? { multiple: true } : {}),
                 ...(isRelation(type) && collection ? { collection, storeAs: 'name' } : {}),
             }))
 
@@ -207,6 +209,14 @@ const NewCollectionModal = ({ onClose, onSave }) => {
                                                         className="size-3.5 rounded" />
                                                     Requerido
                                                 </label>
+                                                {field.type === 'image' && (
+                                                    <label className="flex items-center gap-1 text-xs text-[#6b7280] shrink-0 cursor-pointer">
+                                                        <input type="checkbox" checked={!!field.multiple}
+                                                            onChange={e => updateField(idx, 'multiple', e.target.checked)}
+                                                            className="size-3.5 rounded" />
+                                                        Varias imágenes
+                                                    </label>
+                                                )}
                                             </div>
                                         )}
 

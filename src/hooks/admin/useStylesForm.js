@@ -12,6 +12,7 @@ const DEFAULTS = {
     logo_url: '',
     header_phone: '',
     header_email: '',
+    whatsapp_number: '',
     primary_color: '#6366f1',
     secondary_color: '#8b5cf6',
     accent_color: '#06b6d4',

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Spinner } from '@/components/UI/coss/spinner'
 import { getCollections } from '@/services/collection_service'
-import { getDisplayFieldOptions } from '@/utils/collection'
+import { getDisplayFieldOptions, PRICE_FIELDS } from '@/utils/collection'
 
 const normalizeSchema = (schema) => {
     if (Array.isArray(schema)) return schema
@@ -17,6 +17,7 @@ const PREFERRED_FILTER_KEYS = {
     'cursos-iniciacion': ['grupo_id'],
     equipamientos: ['tecnicas__group_id'],
     equipamiento: ['tecnicas__group_id'],
+    coches: ['marca', 'precio'],
 }
 
 const FILTER_LABELS = {
@@ -49,6 +50,10 @@ const CollectionPickerField = ({ collection, showFilters, enabledFilters, displa
         for (const field of schema) {
             if (field.type === 'boolean') {
                 options.push({ key: field.name, label: field.label ?? field.name, type: 'boolean' })
+                continue
+            }
+            if (field.type === 'number' && PRICE_FIELDS.includes(field.name)) {
+                options.push({ key: field.name, label: `${field.label ?? field.name} (barra de rangos)`, type: 'price-range' })
                 continue
             }
             if (field.type !== 'relation' && field.type !== 'relation-multi') continue

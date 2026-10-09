@@ -11,16 +11,20 @@ import { uploadImage } from '@/services/upload_service'
 
 import { getItemLabel, INPUT_CLS, normalizeNewsImages } from './collectionItemsUtils'
 import { IMAGE_ACCEPT, resolveMediaUrl } from '@/utils/media'
+import { toImageList } from '@/utils/collection'
+
+const sortByLabel = (items) =>
+    [...items].sort((a, b) => getItemLabel(a).localeCompare(getItemLabel(b), 'es'))
 
 const RelationField = ({ field, value, onChange, relatedItems }) => {
-    const options = relatedItems[field.collection] ?? []
+    const options = sortByLabel(relatedItems[field.collection] ?? [])
     return (
         <select
             value={value ?? ''}
             onChange={e => onChange(field.name, e.target.value || null)}
             className={INPUT_CLS}
         >
-            <option value="">— Sin selección —</option>
+            <option value="">{field.required ? '— Selecciona una opción —' : '— Sin selección —'}</option>
             {options.map(item => {
                 const label = getItemLabel(item)
                 return <option key={item.id} value={label}>{label}</option>
@@ -67,7 +71,7 @@ const RelationMultiField = ({ field, value = [], onChange, relatedItems }) => {
     )
 }
 
-const NewsImagesField = ({ value = [], onChange, target = 'noticias' }) => {
+const ImagesField = ({ value = [], onChange, target = 'media', hint }) => {
     const [uploading, setUploading] = useState(false)
     const [pickerOpen, setPickerOpen] = useState(false)
     const images = Array.isArray(value) ? value : []
@@ -184,7 +188,7 @@ const NewsImagesField = ({ value = [], onChange, target = 'noticias' }) => {
             </div>
 
             <p className="text-xs text-[#6b7280]">
-                La primera imagen se usará como portada de la noticia.
+                {hint ?? 'La primera imagen se usará como portada.'}
             </p>
 
             <MediaPicker
@@ -207,12 +211,14 @@ const FieldInput = ({ field, value, onChange, relatedItems, uploadTarget, collec
         return <RelationMultiField field={field} value={value} onChange={onChange} relatedItems={relatedItems} />
     }
     if (field.type === 'image') {
-        if (collectionSlug === 'noticias' && field.name === 'photo') {
+        const isNewsPhoto = collectionSlug === 'noticias' && field.name === 'photo'
+        if (isNewsPhoto || field.multiple) {
             return (
-                <NewsImagesField
+                <ImagesField
                     target={uploadTarget}
                     value={value}
                     onChange={(nextValue) => onChange(field.name, nextValue)}
+                    hint={isNewsPhoto ? 'La primera imagen se usará como portada de la noticia.' : undefined}
                 />
             )
         }
@@ -251,9 +257,15 @@ const ItemModal = ({ fields, initial, uploadTarget, collectionSlug, onSave, onCl
     const [form, setForm] = useState(() => {
         const base = {}
         fields.forEach(f => {
-            base[f.name] = collectionSlug === 'noticias' && f.name === 'photo'
-                ? normalizeNewsImages(initial)
-                : initial?.[f.name] ?? (f.type === 'relation-multi' ? [] : f.type === 'boolean' ? false : '')
+            if (collectionSlug === 'noticias' && f.name === 'photo') {
+                base[f.name] = normalizeNewsImages(initial)
+            } else if (f.type === 'image' && f.multiple) {
+                base[f.name] = toImageList(initial?.[f.name])
+            } else {
+                base[f.name] = initial?.[f.name]
+                    ?? (!initial && f.default !== undefined ? f.default : undefined)
+                    ?? (f.type === 'relation-multi' ? [] : f.type === 'boolean' ? false : '')
+            }
         })
         return base
     })
@@ -276,7 +288,26 @@ const ItemModal = ({ fields, initial, uploadTarget, collectionSlug, onSave, onCl
         })
     }, [fields])
 
-    const setField = (name, val) => setForm(prev => ({ ...prev, [name]: val }))
+    const [errors, setErrors] = useState({})
+
+    const setField = (name, val) => {
+        setForm(prev => ({ ...prev, [name]: val }))
+        setErrors(prev => ({ ...prev, [name]: undefined }))
+    }
+
+    const isEmpty = (value) =>
+        value == null || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && value.length === 0)
+
+    const handleSave = () => {
+        const nextErrors = {}
+        fields.forEach(field => {
+            if (field.required && field.type !== 'boolean' && isEmpty(form[field.name])) {
+                nextErrors[field.name] = 'Este campo es obligatorio.'
+            }
+        })
+        setErrors(nextErrors)
+        if (Object.keys(nextErrors).length === 0) onSave(form)
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -308,6 +339,9 @@ const ItemModal = ({ fields, initial, uploadTarget, collectionSlug, onSave, onCl
                                 uploadTarget={uploadTarget}
                                 collectionSlug={collectionSlug}
                             />
+                            {errors[field.name] && (
+                                <p className="mt-1 text-xs font-medium text-red-600">{errors[field.name]}</p>
+                            )}
                         </div>
                     ))}
                     {fields.length === 0 && (
@@ -317,7 +351,7 @@ const ItemModal = ({ fields, initial, uploadTarget, collectionSlug, onSave, onCl
 
                 <div className="flex justify-end gap-2 border-t border-[#f3f4f6] px-6 py-4">
                     <Button variant="outline" size="sm" onClick={onClose}>Cancelar</Button>
-                    <Button size="sm" onClick={() => onSave(form)}>Guardar</Button>
+                    <Button size="sm" onClick={handleSave}>Guardar</Button>
                 </div>
             </div>
         </div>

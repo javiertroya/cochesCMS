@@ -111,7 +111,7 @@ COMPONENT_TYPES: list[dict[str, Any]] = [
     {
         "type": "service_stack",
         "name": "Servicios destacados",
-        "description": "Bloque apilado de servicios como el de la home.",
+        "description": "Servicios numerados con panel visual que cambia al hacer scroll.",
         "default_props": {
             "title": "Nuestros Servicios",
             "subtitle": "Servicios disponibles.",

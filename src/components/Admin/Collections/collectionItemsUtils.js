@@ -86,6 +86,12 @@ export const formatExpandedValue = (value) => {
 }
 
 export const getAdminFilterDefinitions = (slug) => {
+    if (slug === 'coches') {
+        return [
+            { key: 'activo', label: 'Estado', type: 'boolean' },
+            { key: 'destacado', label: 'Destacado', type: 'boolean', trueLabel: 'Destacados', falseLabel: 'No destacados' },
+        ]
+    }
     if (slug === 'ordenadores') return [{ key: 'sala_id', label: 'Sala', type: 'relation', collection: 'salas' }]
     if (slug === 'tecnicas') return [{ key: 'group_id', label: 'Grupo', type: 'relation', collection: 'grupos' }]
     if (slug === 'cursos') {
@@ -156,6 +162,12 @@ export const itemMatchesAdminFilters = (item, slug, filters, relationData) => {
         const isActive = data.activo !== false
         if (filters.activo === 'active' && !isActive) return false
         if (filters.activo === 'inactive' && isActive) return false
+    }
+
+    if (filters.destacado) {
+        const isFeatured = data.destacado === true
+        if (filters.destacado === 'active' && !isFeatured) return false
+        if (filters.destacado === 'inactive' && isFeatured) return false
     }
 
     return true

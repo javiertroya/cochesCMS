@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Database, ExternalLink } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Database, ExternalLink } from 'lucide-react'
 import { Spinner } from '@/components/UI/coss/spinner'
 
 import FilterBadge from '@/components/UI/FilterBadge'
+import PriceRangeFilter from '@/components/UI/PriceRangeFilter'
 import useCollection from '@/hooks/useCollection'
-import { getTitle, getImageUrl } from '@/utils/collection'
+import { FeaturedBadge } from '@/components/UI/ImageGallery'
+import { formatPrice, getImageUrl, getPriceField, getTitle, isFeatured, PRICE_FIELDS, sortFeaturedFirst } from '@/utils/collection'
 import { getPublicCollectionBySlug } from '@/services/collection_service'
+import { resolveMediaUrl } from '@/utils/media'
 
 const normalizeSchema = (schema) => {
     if (Array.isArray(schema)) return schema
@@ -60,19 +64,28 @@ const itemMatchesBooleanFilter = (item, field, filterValue) => {
     return true
 }
 
+const itemMatchesPriceFilter = (item, field, range) => {
+    if (!range) return true
+    const price = Number(item[field.name])
+    return Number.isFinite(price) && price >= range[0] && price <= range[1]
+}
+
 const CollectionFilters = ({
     relationFields,
     relationData,
     secondLevelFields,
     secondLevelRelationData,
     booleanFields,
+    priceFields,
+    priceLimits,
+    usedValues,
     filters,
     onChange,
 }) => {
-    if (relationFields.length === 0 && secondLevelFields.length === 0 && booleanFields.length === 0) return null
+    if (relationFields.length === 0 && secondLevelFields.length === 0 && booleanFields.length === 0 && priceFields.length === 0) return null
 
     return (
-        <div className="mb-6 space-y-4">
+        <div className="space-y-6">
             {booleanFields.map(field => (
                 <div key={field.name} className="space-y-2">
                     <p className="text-sm font-medium text-slate-700">{field.label ?? field.name}</p>
@@ -92,14 +105,17 @@ const CollectionFilters = ({
 
             {relationFields.map(field => {
                 const related = relationData[field.name]
-                const options = related?.items ?? []
                 const relatedSchema = related?.schema ?? []
+                // Solo las opciones que tiene algún elemento publicado (p. ej. marcas con coches)
+                const options = (related?.items ?? [])
+                    .filter(option => usedValues[field.name]?.has(getTitle(option, relatedSchema)))
+                    .sort((a, b) => getTitle(a, relatedSchema).localeCompare(getTitle(b, relatedSchema), 'es'))
 
                 if (options.length === 0) return null
 
                 return (
-                    <div key={field.name} className="space-y-2">
-                        <p className="text-sm font-medium text-slate-700">{field.label ?? field.name}</p>
+                    <div key={field.name} className="space-y-3">
+                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gray-500">{field.label ?? field.name}</p>
                         <div className="flex flex-wrap gap-2">
                             <FilterBadge active={!filters[field.name]} onClick={() => onChange(field.name, '')}>
                                 Todos
@@ -154,75 +170,116 @@ const CollectionFilters = ({
                     </div>
                 )
             })}
+
+            {priceFields.map(field => (
+                <PriceRangeFilter
+                    key={field.name}
+                    label={field.label?.replace(/\s*\(€\)\s*$/, '') ?? field.name}
+                    max={priceLimits[field.name] ?? 0}
+                    value={filters[field.name] ?? null}
+                    onChange={value => onChange(field.name, value)}
+                />
+            ))}
         </div>
     )
 }
 
-const CollectionLinkCard = ({ item, schema, displayFields }) => {
+const formatValue = (field, value) => {
+    if (Array.isArray(value)) return value.join(', ')
+    if (field?.type === 'boolean') return value ? 'Sí' : 'No'
+    if (field?.type === 'number') {
+        const number = Number(value)
+        if (Number.isFinite(number)) return new Intl.NumberFormat('es-ES').format(number)
+    }
+    return String(value)
+}
+
+const CollectionLinkCard = ({ item, schema, displayFields, collection }) => {
     const title = getTitle(item, schema)
     const imageUrl = getImageUrl(item, schema)
-    const href = item.url ?? item.URL ?? null
+    const externalHref = item.url ?? item.URL ?? null
+    const detailHref = `/coleccion/${collection}/${item.id ?? item.local_id}`
+    const priceField = getPriceField(item)
 
-    const tags = (displayFields ?? [])
+    const specs = (displayFields ?? [])
+        .filter(name => !PRICE_FIELDS.includes(name))
         .map(name => {
             const field = schema.find(f => f.name === name)
             const val = item[name]
-            if (val == null || val === '') return null
-            const label = field?.label ?? name
-            const display = Array.isArray(val) ? val.join(', ') : String(val)
-            return { label, display }
+            if (val == null || val === '' || (Array.isArray(val) && val.length === 0)) return null
+            return { name, label: field?.label ?? name, display: formatValue(field, val) }
         })
         .filter(Boolean)
 
     const inner = (
-        <div className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:border-brand-primary hover:shadow-md">
-            <div className="flex aspect-square items-center justify-center overflow-hidden bg-gray-50">
+        <article className="site-collection-card group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-500 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_24px_48px_-28px_rgba(0,0,0,0.35)]">
+            <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                {isFeatured(item) && <FeaturedBadge className="absolute left-4 top-4 z-10" />}
                 {imageUrl ? (
                     <img
-                        src={imageUrl}
+                        src={resolveMediaUrl(imageUrl)}
                         alt={title}
-                        className="size-full object-cover transition group-hover:scale-105"
+                        loading="lazy"
+                        className="size-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]"
                     />
                 ) : (
-                    <Database className="size-12 text-gray-300" />
-                )}
-            </div>
-
-            <div className="flex flex-1 flex-col gap-2 p-4">
-                <p className="font-semibold text-gray-900 leading-snug line-clamp-2">{title}</p>
-
-                {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                        {tags.map(({ label, display }) => (
-                            <span
-                                key={label}
-                                className="inline-flex items-center rounded-full bg-brand-light px-2.5 py-0.5 text-xs font-medium text-brand-primary"
-                            >
-                                {display}
-                            </span>
-                        ))}
+                    <div className="flex size-full items-center justify-center">
+                        <Database className="size-10 text-gray-300" />
                     </div>
                 )}
-
-                {href && (
-                    <span className="mt-auto flex items-center gap-1 text-xs font-medium text-brand-primary opacity-0 transition group-hover:opacity-100">
-                        Abrir <ExternalLink size={11} />
-                    </span>
-                )}
             </div>
-        </div>
+
+            <div className="flex flex-1 flex-col p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                    <h3 className="site-collection-title min-w-0 text-xl font-semibold leading-snug text-gray-900 line-clamp-2">
+                        {title}
+                    </h3>
+                    {priceField && (
+                        <p className="site-collection-price shrink-0 pt-0.5 text-lg font-semibold text-brand-primary">
+                            {formatPrice(item[priceField])}
+                        </p>
+                    )}
+                </div>
+
+                {specs.length > 0 && (
+                    <dl className="mt-5 grid grid-cols-3 border-y border-gray-100">
+                        {specs.slice(0, 3).map(({ name, label, display }) => (
+                            <div key={name} className="min-w-0 py-3 pr-2">
+                                <dt className="truncate text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-gray-400">{label}</dt>
+                                <dd className="mt-1 truncate text-sm font-medium text-gray-800" title={display}>{display}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                )}
+
+                {specs.length > 3 && (
+                    <p className="mt-3 truncate text-xs text-gray-500">
+                        {specs.slice(3).map(spec => spec.display).join(' · ')}
+                    </p>
+                )}
+
+                <span className="site-service-link mt-auto inline-flex items-center gap-2 pt-6 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gray-900">
+                    <span className="border-b border-current pb-0.5">{externalHref ? 'Abrir enlace' : 'Ver detalles'}</span>
+                    {externalHref
+                        ? <ExternalLink size={13} />
+                        : <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />}
+                </span>
+            </div>
+        </article>
     )
 
-    if (!href) return <div>{inner}</div>
+    if (externalHref) {
+        return (
+            <a href={externalHref} target="_blank" rel="noopener noreferrer" className="block h-full">
+                {inner}
+            </a>
+        )
+    }
 
-    return (
-        <a href={href} target="_blank" rel="noopener noreferrer" className="block">
-            {inner}
-        </a>
-    )
+    return <Link to={detailHref} className="block h-full">{inner}</Link>
 }
 
-const CmsCollectionLinks = ({ collection, displayFields, showFilters, enabledFilters }) => {
+const CmsCollectionLinks = ({ collection, title, subtitle, displayFields, showFilters, enabledFilters }) => {
     const { items, schema, loading, load } = useCollection(collection)
     const [relationData, setRelationData] = useState({})
     const [secondLevelRelationData, setSecondLevelRelationData] = useState({})
@@ -262,6 +319,16 @@ const CmsCollectionLinks = ({ collection, displayFields, showFilters, enabledFil
         () => normalizedSchema.filter(field => field.type === 'boolean'),
         [normalizedSchema],
     )
+
+    const priceFields = useMemo(
+        () => normalizedSchema.filter(field => field.type === 'number' && PRICE_FIELDS.includes(field.name)),
+        [normalizedSchema],
+    )
+
+    const activePriceFields = useMemo(() => {
+        if (!enabledFilters) return priceFields
+        return priceFields.filter(field => enabledFilters.includes(field.name))
+    }, [priceFields, enabledFilters])
 
     const activeRelationFields = useMemo(() => {
         if (!enabledFilters) return relationFields
@@ -362,16 +429,17 @@ const CmsCollectionLinks = ({ collection, displayFields, showFilters, enabledFil
     }
 
     const hasActiveFilter = activeBooleanFields.some(field => field.name === 'activo')
-    const visible = items
-        .filter(item => hasActiveFilter || item.activo !== false)
+    const published = sortFeaturedFirst(items).filter(item => hasActiveFilter || item.activo !== false)
+    const visible = published
         .filter(item => activeBooleanFields.every(field => itemMatchesBooleanFilter(item, field, filters[field.name])))
         .filter(item => activeRelationFields.every(field => itemMatchesFilter(item, field, filters[field.name])))
         .filter(item => activeSecondLevelFields.every(field => {
             const filterKey = `${field.parentFieldName}__${field.fieldName}`
             return itemMatchesSecondLevelFilter(item, field, filters[filterKey], relationData)
         }))
+        .filter(item => activePriceFields.every(field => itemMatchesPriceFilter(item, field, filters[field.name])))
 
-    if (visible.length === 0) {
+    if (published.length === 0) {
         return (
             <section className="py-8">
                 <div className="flex flex-col items-center gap-3 rounded-xl bg-gray-50 py-14 text-center">
@@ -385,30 +453,86 @@ const CmsCollectionLinks = ({ collection, displayFields, showFilters, enabledFil
         )
     }
 
+    // Valores de los elementos publicados: opciones de los filtros y tope de la barra de precio
+    const usedValues = Object.fromEntries(activeRelationFields.map(field => [
+        field.name,
+        new Set(published.flatMap(item => [item[field.name]].flat().map(value => String(value ?? '')))),
+    ]))
+    const priceLimits = Object.fromEntries(activePriceFields.map(field => [
+        field.name,
+        Math.max(0, ...published.map(item => Number(item[field.name])).filter(Number.isFinite)),
+    ]))
+    const visiblePriceFields = activePriceFields.filter(field => priceLimits[field.name] > 0)
+    const hasFiltersApplied = Object.values(filters).some(Boolean)
+
     return (
-        <section className="py-8">
-            {showFilters && (
-                <CollectionFilters
-                    relationFields={activeRelationFields}
-                    relationData={relationData}
-                    secondLevelFields={activeSecondLevelFields}
-                    secondLevelRelationData={secondLevelRelationData}
-                    booleanFields={activeBooleanFields}
-                    filters={filters}
-                    onChange={(fieldName, value) => setFilters(prev => ({ ...prev, [fieldName]: value }))}
-                />
+        <section className="py-10 lg:py-14">
+            {(title || subtitle) && (
+                <header className="mb-8 max-w-2xl lg:mb-10">
+                    {title && (
+                        <h2 className="site-section-title text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+                            {title}
+                        </h2>
+                    )}
+                    {subtitle && <p className="mt-3 text-base leading-relaxed text-gray-500">{subtitle}</p>}
+                </header>
             )}
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {visible.map(item => (
-                    <CollectionLinkCard
-                        key={item.id ?? item.local_id}
-                        item={item}
-                        schema={normalizedSchema}
-                        displayFields={displayFields}
+            {showFilters && (
+                <div className="site-filter-panel mb-8 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 lg:mb-10">
+                    <CollectionFilters
+                        relationFields={activeRelationFields}
+                        relationData={relationData}
+                        secondLevelFields={activeSecondLevelFields}
+                        secondLevelRelationData={secondLevelRelationData}
+                        booleanFields={activeBooleanFields}
+                        priceFields={visiblePriceFields}
+                        priceLimits={priceLimits}
+                        usedValues={usedValues}
+                        filters={filters}
+                        onChange={(fieldName, value) => setFilters(prev => ({ ...prev, [fieldName]: value }))}
                     />
-                ))}
-            </div>
+                    <div className="mt-6 flex items-center justify-between gap-4 border-t border-gray-100 pt-4 text-sm">
+                        <p className="text-gray-500">
+                            {visible.length} {visible.length === 1 ? 'resultado' : 'resultados'}
+                        </p>
+                        {hasFiltersApplied && (
+                            <button
+                                type="button"
+                                onClick={() => setFilters({})}
+                                className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gray-900 underline underline-offset-4 hover:text-brand-primary"
+                            >
+                                Limpiar filtros
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {visible.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 rounded-2xl bg-gray-50 py-14 text-center">
+                    <p className="text-sm font-semibold text-gray-700">Ningún resultado con estos filtros</p>
+                    <button
+                        type="button"
+                        onClick={() => setFilters({})}
+                        className="text-xs font-medium text-brand-primary underline underline-offset-4"
+                    >
+                        Limpiar filtros
+                    </button>
+                </div>
+            ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+                    {visible.map(item => (
+                        <CollectionLinkCard
+                            key={item.id ?? item.local_id}
+                            item={item}
+                            schema={normalizedSchema}
+                            displayFields={displayFields}
+                            collection={collection}
+                        />
+                    ))}
+                </div>
+            )}
         </section>
     )
 }

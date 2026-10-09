@@ -5,7 +5,8 @@ import { Spinner } from '@/components/UI/coss/spinner'
 
 import FilterBadge from '@/components/UI/FilterBadge'
 import { getPublicCollectionBySlug } from '@/services/collection_service'
-import { getTitle, getImageUrl } from '@/utils/collection'
+import ImageGallery, { FeaturedBadge } from '@/components/UI/ImageGallery'
+import { getTitle, getImageUrl, getImageUrls, isFeatured, toImageList, sortFeaturedFirst, STATUS_FIELDS } from '@/utils/collection'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -176,7 +177,8 @@ const InfoCard = ({ item, schema, displayFields, onClick }) => {
             onClick={onClick}
             className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-sm transition hover:border-brand-primary hover:shadow-md"
         >
-            <div className="flex aspect-square items-center justify-center overflow-hidden bg-gray-50">
+            <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gray-50">
+                {isFeatured(item) && <FeaturedBadge className="absolute left-3 top-3 z-10" />}
                 {imageUrl ? (
                     <img
                         src={imageUrl}
@@ -215,10 +217,10 @@ const FieldValue = ({ field, value }) => {
 
     if (field.type === 'image') {
         return (
-            <img
-                src={value}
+            <ImageGallery
+                images={toImageList(value)}
                 alt={field.label ?? field.name}
-                className="max-h-64 w-auto rounded-lg object-contain"
+                imageClassName="max-h-64 w-auto rounded-lg object-contain"
             />
         )
     }
@@ -244,11 +246,14 @@ const FieldValue = ({ field, value }) => {
 
 const InfoDrawer = ({ item, schema, onClose, children }) => {
     const title = getTitle(item, schema)
-    const imageUrl = getImageUrl(item, schema)
+    const images = getImageUrls(item, schema)
 
     const detailFields = schema.filter(f => {
         const val = item[f.name]
-        return val != null && val !== ''
+        if (STATUS_FIELDS.includes(f.name)) return false
+        // La imagen principal ya se muestra arriba como galería
+        if (f.type === 'image' && images.length > 0 && toImageList(val)[0] === images[0]) return false
+        return val != null && val !== '' && !(Array.isArray(val) && val.length === 0)
     })
 
     return (
@@ -271,12 +276,14 @@ const InfoDrawer = ({ item, schema, onClose, children }) => {
                 </div>
 
                 <div className="flex flex-col gap-6 px-6 py-5">
-                    {imageUrl && (
-                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-                            <img
-                                src={imageUrl}
+                    {isFeatured(item) && <FeaturedBadge className="self-start" />}
+
+                    {images.length > 0 && (
+                        <div className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50 p-4">
+                            <ImageGallery
+                                images={images}
                                 alt={title}
-                                className="max-h-72 w-full object-contain p-4"
+                                imageClassName="max-h-72 w-full object-contain"
                             />
                         </div>
                     )}
@@ -415,7 +422,7 @@ const CmsInfoItems = ({ collection, displayFields, showFilters, enabledFilters }
     const visibleItems = useMemo(() => {
         const hasActiveFilter = activeBooleanFields.some(field => field.name === 'activo')
         const items = (collectionData?.items ?? []).filter(item => hasActiveFilter || item.activo !== false)
-        return items
+        return sortFeaturedFirst(items)
             .filter(item => activeBooleanFields.every(field => itemMatchesBooleanFilter(item, field, filters[field.name])))
             .filter(item => activeRelationFields.every(field => itemMatchesFilter(item, field, filters[field.name])))
             .filter(item => activeSecondLevelFields.every(field => {

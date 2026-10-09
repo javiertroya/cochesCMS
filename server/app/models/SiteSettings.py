@@ -10,6 +10,8 @@ class SiteSettingsUpdate(BaseModel):
     logo_url: Optional[str] = None
     header_phone: Optional[str] = None
     header_email: Optional[str] = None
+    # Número del botón "Me interesa" de las fichas; vacío = se usa header_phone
+    whatsapp_number: Optional[str] = None
     primary_color: Optional[str] = None
     secondary_color: Optional[str] = None
     accent_color: Optional[str] = None

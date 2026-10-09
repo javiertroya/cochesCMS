@@ -34,6 +34,13 @@ const HeaderSection = ({ register, control, watch }) => {
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Email del header</label>
                         <Input type="email" placeholder="info@example.com" {...register('header_email')} />
                     </div>
+                    <div className="sm:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">WhatsApp</label>
+                        <Input placeholder="+34 600 000 000" {...register('whatsapp_number')} />
+                        <p className="mt-1 text-xs text-gray-500">
+                            Número del botón «Me interesa» de las fichas de coches. Si lo dejas vacío se usa el teléfono del header.
+                        </p>
+                    </div>
                 </div>
             </div>
         </StylesSection>

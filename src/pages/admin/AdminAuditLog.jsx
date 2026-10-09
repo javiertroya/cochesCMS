@@ -45,6 +45,7 @@ const RESOURCE_LABELS = {
 
 const relativeTime = (value) => {
     const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return '—'
     const diffMs = Date.now() - date.getTime()
     const diffMinutes = Math.max(1, Math.round(diffMs / 60000))
     if (diffMinutes < 60) return `Hace ${diffMinutes} min`
@@ -54,9 +55,13 @@ const relativeTime = (value) => {
     return `Hace ${diffDays} d`
 }
 
-const formatDate = (value) => new Intl.DateTimeFormat('es-ES', {
-    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-}).format(new Date(value))
+const formatDate = (value) => {
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return ''
+    return new Intl.DateTimeFormat('es-ES', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    }).format(date)
+}
 
 const AdminAuditLog = () => {
     const [logs, setLogs] = useState([])

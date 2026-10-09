@@ -25,7 +25,7 @@ const EMPTY_ANALYTICS = {
     summary: { pageviews: 0, visitors: 0, todayPageviews: 0 },
     timeline: [],
     topPages: [],
-    topEvents: [],
+    trafficSources: [],
 }
 
 const fmt = (v) => new Intl.NumberFormat('es-ES').format(v ?? 0)
@@ -68,7 +68,7 @@ const AdminAnalytics = () => {
                     summary: { pageviews: 0, visitors: 0, todayPageviews: 0 },
                     timeline: [],
                     topPages: [],
-                    topEvents: [],
+                    trafficSources: [],
                 })
             } finally {
                 setLoading(false)
@@ -147,7 +147,7 @@ const AdminAnalytics = () => {
 
                 {!analytics.configured && (
                     <div className="rounded-xl border border-dashed border-[#dcdfea] bg-[#f9fafb] px-6 py-10 text-center text-sm text-[#6b7280]">
-                        {analytics.message ?? 'PostHog todavía no está configurado.'}
+                        {analytics.message ?? 'No se pudieron cargar las analíticas.'}
                     </div>
                 )}
 

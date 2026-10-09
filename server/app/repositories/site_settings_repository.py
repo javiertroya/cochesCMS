@@ -5,7 +5,7 @@ from app.models.SiteSettings import SiteSettingsUpdate
 
 _COLUMNS = """
     id, site_name, site_description, favicon_url, logo_url,
-    header_phone, header_email,
+    header_phone, header_email, whatsapp_number,
     primary_color, secondary_color, accent_color, background_color,
     text_color, heading_color, link_color,
     font_family_heading, font_family_body, font_size_base,

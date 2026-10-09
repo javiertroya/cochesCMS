@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import text
 
@@ -89,7 +89,11 @@ class AuditLogRepository:
             rows = []
             for row in result.mappings().all():
                 d = dict(row)
-                if isinstance(d.get("created_at"), datetime):
-                    d["created_at"] = d["created_at"].isoformat() + "Z"
+                created_at = d.get("created_at")
+                if isinstance(created_at, datetime):
+                    # TIMESTAMPTZ ya trae zona horaria; solo las fechas sin zona se marcan como UTC
+                    if created_at.tzinfo is None:
+                        created_at = created_at.replace(tzinfo=timezone.utc)
+                    d["created_at"] = created_at.isoformat()
                 rows.append(d)
             return rows

@@ -270,6 +270,84 @@
 	box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.35);
 }
 
+/* Servicios con panel que cambia al hacer scroll */
+[data-theme="pro"] .site-service-panel {
+	background-image:
+		radial-gradient(ellipse 80% 70% at 100% 0%, rgba(197, 164, 109, 0.2), transparent 60%),
+		linear-gradient(160deg, var(--pro-ink), var(--pro-black));
+	border: 1px solid var(--pro-line);
+}
+
+[data-theme="pro"] .site-service-numeral {
+	font-family: var(--pro-font-display);
+	font-weight: 500;
+	color: rgba(197, 164, 109, 0.1);
+}
+
+[data-theme="pro"] .site-service-accent {
+	color: var(--pro-gold);
+}
+
+[data-theme="pro"] .site-service-progress {
+	background: var(--pro-gold);
+}
+
+[data-theme="pro"] .site-service-link:hover {
+	color: var(--pro-gold-deep);
+}
+
+/* Tarjetas de colección (coches) */
+[data-theme="pro"] .site-collection-card:hover {
+	border-color: var(--pro-gold-soft);
+}
+
+[data-theme="pro"] .site-collection-title {
+	font-family: var(--pro-font-display);
+	font-size: 1.55rem;
+	font-weight: 600;
+	line-height: 1.15;
+}
+
+[data-theme="pro"] .site-collection-price {
+	color: var(--pro-gold-deep);
+}
+
+/* Ficha: precio y botones "Me interesa" / "Llamar" */
+[data-theme="pro"] .site-item-price {
+	font-family: var(--pro-font-display);
+	font-weight: 500;
+	color: var(--pro-gold-deep);
+}
+
+[data-theme="pro"] :is(.site-interest-primary, .site-interest-secondary) {
+	border-radius: 2px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+}
+
+[data-theme="pro"] .site-interest-primary {
+	background: var(--pro-gold);
+	color: var(--pro-black);
+}
+
+[data-theme="pro"] .site-interest-primary:hover {
+	background: var(--pro-gold-soft);
+	opacity: 1;
+}
+
+/* Filtros del catálogo */
+[data-theme="pro"] .site-filter-badge {
+	border-radius: 2px;
+	font-size: 0.78rem;
+	letter-spacing: 0.04em;
+}
+
+[data-theme="pro"] .site-price-filter-fill {
+	background: var(--pro-gold);
+}
+
 /* Bloques destacados (Hero y CTA del CMS) */
 [data-theme="pro"] .site-cms-hero {
 	background-image:

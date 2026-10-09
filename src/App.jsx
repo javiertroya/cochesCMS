@@ -7,7 +7,7 @@ import { BreadcrumbProvider } from './context/BreadcrumbContext'
 import { HeaderCarouselProvider } from './context/HeaderCarouselContext'
 import { SiteSettingsProvider } from './context/SiteSettingsContext'
 import { ToastProvider } from './components/UI/coss/toast'
-import PostHogRouteTracker from './components/Analytics/PostHogRouteTracker'
+import PageViewTracker from './components/Analytics/PageViewTracker'
 
 import AdminShell from './components/Admin/Layout/AdminShell'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -41,7 +41,7 @@ const App = () => {
         <HeaderCarouselProvider>
             <BrowserRouter>
                 <AuthProvider>
-                    {import.meta.env.VITE_POSTHOG_TOKEN ? <PostHogRouteTracker /> : null}
+                    <PageViewTracker />
                     <ToastProvider>
                         <BreadcrumbProvider>
                             <Routes>

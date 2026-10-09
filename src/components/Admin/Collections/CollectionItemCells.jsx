@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Star } from 'lucide-react'
 
 import {
     formatExpandedValue,
@@ -78,8 +78,46 @@ const shouldAlwaysCompact = (collectionSlug, fieldName) => {
     return false
 }
 
-export const CellValue = ({ field, value, knownMediaUrls, onExpand, collectionSlug }) => {
-    if (field.type === 'boolean') return value ? 'Sí' : 'No'
+const BooleanToggle = ({ field, value, onToggle }) => {
+    const checked = value ?? field.default ?? false
+
+    if (field.name === 'destacado') {
+        return (
+            <button
+                type="button"
+                onClick={onToggle}
+                title={checked ? 'Quitar de destacados' : 'Marcar como destacado'}
+                aria-pressed={checked}
+                className="flex size-8 items-center justify-center rounded-lg transition hover:bg-amber-50"
+            >
+                <Star size={16} className={checked ? 'fill-amber-400 text-amber-400' : 'text-[#d1d5db]'} />
+            </button>
+        )
+    }
+
+    return (
+        <button
+            type="button"
+            onClick={onToggle}
+            title="Cambiar estado"
+            aria-pressed={checked}
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition ${
+                checked
+                    ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    : 'bg-[#f3f4f6] text-[#6b7280] hover:bg-[#e5e7eb]'
+            }`}
+        >
+            <span className={`size-1.5 rounded-full ${checked ? 'bg-emerald-500' : 'bg-[#9ca3af]'}`} />
+            {field.name === 'activo' ? (checked ? 'Activo' : 'Inactivo') : (checked ? 'Sí' : 'No')}
+        </button>
+    )
+}
+
+export const CellValue = ({ field, value, knownMediaUrls, onExpand, onToggle, collectionSlug }) => {
+    if (field.type === 'boolean') {
+        if (onToggle) return <BooleanToggle field={field} value={value} onToggle={onToggle} />
+        return value ? 'Sí' : 'No'
+    }
 
     if (field.type === 'image') {
         const images = Array.isArray(value) ? value : (value ? [value] : [])

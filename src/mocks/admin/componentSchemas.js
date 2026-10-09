@@ -255,6 +255,7 @@ export const COMPONENT_SCHEMAS = {
                 { name: 'description', label: 'Descripción',        type: 'textarea' },
                 { name: 'to',          label: 'URL de destino',     type: 'text' },
                 { name: 'linkText',    label: 'Texto del botón',    type: 'text' },
+                { name: 'image',       label: 'Imagen (opcional)',  type: 'image' },
                 {
                     name: 'icon', label: 'Icono', type: 'select',
                     options: [
@@ -281,7 +282,7 @@ export const COMPONENT_SCHEMAS = {
                     ],
                 },
                 {
-                    name: 'gradient', label: 'Color', type: 'select',
+                    name: 'gradient', label: 'Color del panel (sin imagen)', type: 'select',
                     options: [
                         { value: 'blue',    label: 'Azul' },
                         { value: 'indigo',  label: 'Índigo' },
@@ -325,6 +326,8 @@ export const COMPONENT_SCHEMAS = {
         { name: 'linkUrl',  label: 'URL del enlace',      type: 'text' },
     ],
     collection_links: [
+        { name: 'title',      label: 'Título (opcional)',    type: 'text' },
+        { name: 'subtitle',   label: 'Subtítulo (opcional)', type: 'textarea' },
         { name: 'collection', label: 'Colección', type: 'collection-picker' },
     ],
     info_items: [

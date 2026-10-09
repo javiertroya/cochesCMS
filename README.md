@@ -6,7 +6,7 @@ editables desde un panel CMS. **No hay venta online.**
 - Frontend: React 19 + Vite + Tailwind v4 (`src/`)
 - Backend: FastAPI + SQLAlchemy + Alembic (`server/`)
 - Base de datos: PostgreSQL 16 (Docker)
-- Archivos: local en desarrollo, Cloudflare R2 en producción
+- Archivos: en el disco del servidor (Cloudflare R2 opcional)
 
 El plan completo por fases está en `PLAN_WEB_COCHES.md` (copia en
 `C:\Users\javic\Downloads\webvinosCMS-main\webvinosCMS-main`).
@@ -68,7 +68,13 @@ Al subir una imagen (JPG, PNG, WebP o HEIC de iPhone) el backend:
 
 Logo, favicon, SVG y vídeos se guardan tal cual.
 
-### Pasar a Cloudflare R2
+### Pasar a Cloudflare R2 (opcional)
+
+En producción se usa el disco del servidor (`STORAGE_DRIVER=local`); las carpetas
+`server/uploads` y `server/private_uploads` deben estar en volúmenes persistentes
+e incluirse en las copias de seguridad. R2 es una opción futura: los archivos ya
+subidos habría que migrarlos con un script (ver `PLAN_WEB_COCHES.md`, fase 1).
+
 
 1. En Cloudflare → R2, crea dos buckets: uno **público** (p. ej. `coches-public`)
    y otro **privado** (`coches-private`).
